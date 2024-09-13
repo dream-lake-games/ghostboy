@@ -14,7 +14,7 @@ macro_rules! defn_animation {
                         fps: $fps:expr,
                     )?
                     $(
-                        pos: $pos:expr,
+                        pos: ($px:expr, $py:expr),
                     )?
                     $(
                         fzix: $fzix:expr,
@@ -81,7 +81,7 @@ macro_rules! defn_animation {
                                     fps = $fps;
                                 )?
                                 $(
-                                    pos = $pos;
+                                    pos = Pos::new($px, $py);
                                 )?
                                 $(
                                     fzix = $fzix;

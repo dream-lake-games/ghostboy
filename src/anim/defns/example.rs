@@ -7,25 +7,22 @@ defn_animation!(
             path: "enemies/suicido/charge.png",
             size: (16, 16),
             length: 4,
-            fps: 16.0,
+            scale: (2, 4),
         },
         launch: {
             path: "enemies/suicido/launch.png",
             size: (16, 16),
             length: 4,
-            fps: 16.0,
         },
         explode: {
             path: "enemies/suicido/explode.png",
             size: (16, 16),
             length: 4,
-            fps: 8.0,
         },
         warning_circle: {
             path: "enemies/suicido/warning_circle.png",
             size: (64, 64),
             length: 3,
-            fps: 18.0,
         },
     ],
     states: [
