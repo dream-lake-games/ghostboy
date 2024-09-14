@@ -28,8 +28,8 @@ impl StaticTx {
             comps: PhysicsComps::new(data),
         }
     }
-    pub fn single(kind: StaticTxKind, hbox: Hbox, pos: IVec2) -> Self {
-        Self::new(vec![(kind, hbox, pos)])
+    pub fn single(kind: StaticTxKind, hbox: Hbox, offset: IVec2) -> Self {
+        Self::new(vec![(kind, hbox, offset)])
     }
 }
 #[derive(Component, Clone, Debug, Reflect)]
@@ -56,6 +56,9 @@ impl StaticRx {
             ctrl: default(),
             comps: PhysicsComps::new(data),
         }
+    }
+    pub fn single(kind: StaticRxKind, hbox: Hbox, offset: IVec2) -> Self {
+        Self::new(vec![(kind, hbox, offset)])
     }
 }
 #[derive(Component, Clone, Debug, Reflect)]

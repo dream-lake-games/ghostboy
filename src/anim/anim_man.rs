@@ -10,7 +10,7 @@ pub struct AnimBodyData {
     pub size: UVec2,
     pub length: u32,
     pub fps: f32,
-    pub offset: IVec2,
+    pub offset: Vec2,
     pub zix: f32,
     pub scale: IVec2,
     pub render_layers: RenderLayers,
@@ -28,7 +28,7 @@ impl AnimBodyData {
 #[derive(Default, Debug, Clone, Reflect)]
 pub struct AnimBodyDataOverrides {
     pub override_fps: Option<f32>,
-    pub override_pos: Option<IVec2>,
+    pub override_pos: Option<Vec2>,
     pub override_fzix: Option<f32>,
     pub override_scale: Option<IVec2>,
 }
@@ -186,7 +186,7 @@ impl<StateMachine: AnimStateMachine> AnimBodyDataBundle<StateMachine> {
                 IVec2::ONE,
             )),
             spatial: SpatialBundle::from_transform(Transform {
-                translation: data.offset.as_vec2().extend(data.zix),
+                translation: data.offset.extend(data.zix),
                 scale: data.scale.extend(1).as_vec3(),
                 ..default()
             }),

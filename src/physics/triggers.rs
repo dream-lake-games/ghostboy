@@ -28,6 +28,9 @@ impl TriggerTx {
             comps: PhysicsComps::new(data),
         }
     }
+    pub fn single(kind: TriggerTxKind, hbox: Hbox, offset: IVec2) -> Self {
+        Self::new(vec![(kind, hbox, offset)])
+    }
 }
 #[derive(Component, Clone, Debug, Reflect)]
 pub struct TriggerTxComp {
@@ -53,6 +56,9 @@ impl TriggerRx {
             ctrl: default(),
             comps: PhysicsComps::new(data),
         }
+    }
+    pub fn single(kind: TriggerRxKind, hbox: Hbox, offset: IVec2) -> Self {
+        Self::new(vec![(kind, hbox, offset)])
     }
 }
 #[derive(Component, Clone, Debug, Reflect)]

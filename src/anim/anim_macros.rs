@@ -66,7 +66,7 @@ macro_rules! defn_animation {
                                 #[allow(unused, unused_mut)]
                                 let mut fps = DEFAULT_ANIMATION_FPS;
                                 #[allow(unused, unused_mut)]
-                                let mut offset = IVec2::default();
+                                let mut offset = Vec2::default();
                                 #[allow(unused, unused_mut)]
                                 let mut zix = f32::default();
                                 #[allow(unused, unused_mut)]
@@ -81,7 +81,7 @@ macro_rules! defn_animation {
                                     fps = $fps;
                                 )?
                                 $(
-                                    offset = Pos::new($ox, $oy);
+                                    offset = Vec2::new($ox, $oy);
                                 )?
                                 $(
                                     zix = $zix;
