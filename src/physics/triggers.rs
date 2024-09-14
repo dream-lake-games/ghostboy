@@ -4,12 +4,12 @@ use super::physics_maint::{impl_physics_comp, PhysicsComp, PhysicsComps, Physics
 
 // INTERESTING PART
 
-#[derive(Clone, Debug, Reflect)]
+#[derive(Clone, Copy, Debug, Reflect)]
 pub enum TriggerTxKind {
     /// Standard solid thing. Stops stuff
     Solid,
 }
-#[derive(Clone, Debug, Reflect)]
+#[derive(Clone, Copy, Debug, Reflect)]
 pub enum TriggerRxKind {
     /// Pushes the rx ctrl out of tx comps, sets vel to zero along plane of intersection
     Default,
@@ -22,14 +22,14 @@ pub struct TriggerTx {
     comps: PhysicsComps<TriggerTxComp>,
 }
 impl TriggerTx {
-    pub fn new(data: Vec<(TriggerTxKind, Hbox, IVec2)>) -> Self {
+    pub fn new(data: Vec<(TriggerTxKind, Hbox)>) -> Self {
         Self {
             ctrl: default(),
             comps: PhysicsComps::new(data),
         }
     }
-    pub fn single(kind: TriggerTxKind, hbox: Hbox, offset: IVec2) -> Self {
-        Self::new(vec![(kind, hbox, offset)])
+    pub fn single(kind: TriggerTxKind, hbox: Hbox) -> Self {
+        Self::new(vec![(kind, hbox)])
     }
 }
 #[derive(Component, Clone, Debug, Reflect)]
@@ -37,7 +37,6 @@ pub struct TriggerTxComp {
     kind: TriggerTxKind,
     ctrl: Entity,
     hbox: Hbox,
-    offset: IVec2,
 }
 #[derive(Component, Clone, Debug, Default, Reflect)]
 pub struct TriggerTxCtrl {
@@ -51,14 +50,14 @@ pub struct TriggerRx {
     comps: PhysicsComps<TriggerRxComp>,
 }
 impl TriggerRx {
-    pub fn new(data: Vec<(TriggerRxKind, Hbox, IVec2)>) -> Self {
+    pub fn new(data: Vec<(TriggerRxKind, Hbox)>) -> Self {
         Self {
             ctrl: default(),
             comps: PhysicsComps::new(data),
         }
     }
-    pub fn single(kind: TriggerRxKind, hbox: Hbox, offset: IVec2) -> Self {
-        Self::new(vec![(kind, hbox, offset)])
+    pub fn single(kind: TriggerRxKind, hbox: Hbox) -> Self {
+        Self::new(vec![(kind, hbox)])
     }
 }
 #[derive(Component, Clone, Debug, Reflect)]
@@ -66,7 +65,6 @@ pub struct TriggerRxComp {
     kind: TriggerRxKind,
     ctrl: Entity,
     hbox: Hbox,
-    offset: IVec2,
 }
 impl_physics_comp!(TriggerRxKind, TriggerRxComp, TriggerRxCtrl);
 #[derive(Component, Clone, Debug, Default, Reflect)]

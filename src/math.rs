@@ -14,3 +14,9 @@ impl std::ops::Add<Vec2> for Pos {
         self
     }
 }
+impl std::ops::AddAssign<Vec2> for Pos {
+    fn add_assign(&mut self, rhs: Vec2) {
+        self.x += rhs.x;
+        self.y += rhs.y;
+    }
+}

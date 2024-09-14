@@ -14,7 +14,7 @@ impl HitboxColorable for StaticRxKind {
 impl HitboxColorable for StaticTxKind {
     fn to_color(&self) -> Color {
         match self {
-            Self::Solid => tailwind::YELLOW_200.into(),
+            Self::Solid => tailwind::ORANGE_400.into(),
         }
     }
 }
@@ -43,8 +43,8 @@ fn draw_hitboxes(
                 let Ok(ipos) = pos_q.get(comp.ctrl) else {
                     continue;
                 };
-                let pos = ipos.cur + comp.offset;
-                gz.rect_2d(pos.as_vec2(), Rot2::default(), comp.hbox.as_vec2(), color);
+                let pos = ipos.cur.as_vec2() + comp.hbox.get_offset();
+                gz.rect_2d(pos, Rot2::default(), comp.hbox.get_size().as_vec2(), color);
             }
         };
     }

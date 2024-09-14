@@ -1,8 +1,6 @@
 use crate::prelude::*;
 
-#[derive(Component, Clone, Debug, Reflect)]
+#[derive(Component, Clone, Debug, Reflect, Default)]
 pub struct Dyno {
-    vel: Vec2,
+    pub vel: Vec2,
 }
-
-pub(super) fn register_dyno(app: &mut App) {}

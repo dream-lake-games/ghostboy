@@ -27,8 +27,11 @@ impl Default for TestEntBundle {
     fn default() -> Self {
         Self {
             name: Name::new("TestEnt"),
-            pos: MyLdtkWaitForGTran,
-            static_rx: StaticRx::single(StaticRxKind::Default, Hbox::new(8, 12), default()),
+            pos: MyLdtkWaitForGTran::dyno(default()),
+            static_rx: StaticRx::single(
+                StaticRxKind::Default,
+                Hbox::new().with_offset(0.0, -1.0).with_size(8, 12),
+            ),
             anim: AnimMan::new(),
         }
     }

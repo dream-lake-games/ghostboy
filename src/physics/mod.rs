@@ -3,6 +3,7 @@ use crate::prelude::*;
 pub mod bullet_time;
 pub mod dyno;
 pub mod hbox;
+mod logic;
 pub mod physics_maint;
 pub mod pos;
 pub mod statics;
@@ -35,8 +36,9 @@ impl Plugin for PhysicsPlugin {
         reg_types!(
             app,
             // bullet_time.rs
-            // dyno.rs
             BulletTime,
+            // dyno.rs
+            Dyno,
             // hbox.rs
             Hbox,
             // maint.rs
@@ -61,6 +63,7 @@ impl Plugin for PhysicsPlugin {
 
         app.add_plugins(bullet_time::BulletTimePlugin);
 
+        logic::register_logic(app);
         pos::register_pos(app);
     }
 }

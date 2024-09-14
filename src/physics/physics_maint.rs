@@ -4,7 +4,7 @@ pub(super) trait PhysicsComp: Queryable + Component {
     type Kind: Queryable;
     type Ctrl: PhysicsCtrl;
 
-    fn from_data(ctrl: Entity, kind: Self::Kind, hbox: Hbox, offset: IVec2) -> Self;
+    fn from_data(ctrl: Entity, kind: Self::Kind, hbox: Hbox) -> Self;
 }
 pub(super) trait PhysicsCtrl: Queryable + Component + Default {
     fn add_comp(&mut self, eid: Entity);
@@ -18,13 +18,8 @@ macro_rules! impl_physics_comp {
             type Kind = $kind;
             type Ctrl = $ctrl;
 
-            fn from_data(ctrl: Entity, kind: $kind, hbox: Hbox, offset: IVec2) -> Self {
-                Self {
-                    kind,
-                    ctrl,
-                    hbox,
-                    offset,
-                }
+            fn from_data(ctrl: Entity, kind: $kind, hbox: Hbox) -> Self {
+                Self { kind, ctrl, hbox }
             }
         }
         impl PhysicsCtrl for $ctrl {
@@ -38,10 +33,10 @@ pub(super) use impl_physics_comp;
 
 #[derive(Clone, Debug, Reflect)]
 pub(super) struct PhysicsComps<T: PhysicsComp> {
-    data: Vec<(T::Kind, Hbox, IVec2)>,
+    data: Vec<(T::Kind, Hbox)>,
 }
 impl<T: PhysicsComp> PhysicsComps<T> {
-    pub fn new(data: Vec<(T::Kind, Hbox, IVec2)>) -> Self {
+    pub fn new(data: Vec<(T::Kind, Hbox)>) -> Self {
         Self { data }
     }
 }
@@ -56,12 +51,12 @@ impl<T: PhysicsComp> Component for PhysicsComps<T> {
                 .data
                 .clone();
             let mut comp_eids = vec![];
-            for (ix, (kind, hbox, pos)) in data.into_iter().enumerate() {
+            for (ix, (kind, hbox)) in data.into_iter().enumerate() {
                 let comp_eid = world
                     .commands()
                     .spawn((
                         Name::new(format!("PhysicsComp_{kind:?}_{ix}")),
-                        T::from_data(eid, kind, hbox, pos),
+                        T::from_data(eid, kind, hbox),
                     ))
                     .set_parent(eid)
                     .id();

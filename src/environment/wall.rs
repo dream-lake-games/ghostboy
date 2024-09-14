@@ -12,9 +12,9 @@ pub struct WallBundle {
 impl Default for WallBundle {
     fn default() -> Self {
         Self {
-            wait: MyLdtkWaitForGTran,
+            wait: MyLdtkWaitForGTran::no_dyno(),
             wall: Wall,
-            static_tx: StaticTx::single(StaticTxKind::Solid, Hbox::new(16, 16), IVec2::ZERO),
+            static_tx: StaticTx::single(StaticTxKind::Solid, Hbox::new().with_size(16, 16)),
         }
     }
 }
