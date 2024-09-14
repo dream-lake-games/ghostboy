@@ -4,7 +4,7 @@ pub(super) trait PhysicsComp: Queryable + Component {
     type Kind: Queryable;
     type Ctrl: PhysicsCtrl;
 
-    fn from_data(ctrl: Entity, kind: Self::Kind, hbox: Hbox, offset: Pos) -> Self;
+    fn from_data(ctrl: Entity, kind: Self::Kind, hbox: Hbox, offset: IVec2) -> Self;
 }
 pub(super) trait PhysicsCtrl: Queryable + Component + Default {
     fn add_comp(&mut self, eid: Entity);
@@ -18,7 +18,7 @@ macro_rules! impl_physics_comp {
             type Kind = $kind;
             type Ctrl = $ctrl;
 
-            fn from_data(ctrl: Entity, kind: $kind, hbox: Hbox, offset: Pos) -> Self {
+            fn from_data(ctrl: Entity, kind: $kind, hbox: Hbox, offset: IVec2) -> Self {
                 Self {
                     kind,
                     ctrl,
@@ -38,10 +38,10 @@ pub(super) use impl_physics_comp;
 
 #[derive(Clone, Debug, Reflect)]
 pub(super) struct PhysicsComps<T: PhysicsComp> {
-    data: Vec<(T::Kind, Hbox, Pos)>,
+    data: Vec<(T::Kind, Hbox, IVec2)>,
 }
 impl<T: PhysicsComp> PhysicsComps<T> {
-    pub fn new(data: Vec<(T::Kind, Hbox, Pos)>) -> Self {
+    pub fn new(data: Vec<(T::Kind, Hbox, IVec2)>) -> Self {
         Self { data }
     }
 }

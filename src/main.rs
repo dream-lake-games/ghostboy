@@ -1,19 +1,22 @@
 pub mod anim;
 pub mod consts;
 pub mod debug;
+pub mod environment;
 pub mod layer;
 pub mod macros;
+pub mod math;
+pub mod my_ldtk;
 pub mod physics;
 pub mod roots;
-pub mod shorthand;
 pub mod types;
 
 pub mod prelude {
     pub use super::{
-        anim::*, consts::*, debug::*, layer::*, macros::*, physics::*, roots::*, shorthand::*,
-        types::*,
+        anim::*, consts::*, debug::*, environment::*, layer::*, macros::*, math::*, my_ldtk::*,
+        physics::*, roots::*, types::*,
     };
     pub use bevy::{
+        color::palettes::tailwind,
         ecs::component::StorageType,
         input::common_conditions::input_toggle_active,
         prelude::*,
@@ -21,6 +24,7 @@ pub mod prelude {
         render::view::RenderLayers,
         utils::{HashMap, HashSet},
     };
+    pub use bevy_ecs_ldtk::prelude::*;
     pub use bevy_inspector_egui::quick::WorldInspectorPlugin;
     pub use std::time::Duration;
 }
@@ -33,6 +37,7 @@ fn main() {
     use bevy::{asset::AssetMetaCheck, window::*};
     app.add_plugins(
         DefaultPlugins
+            .set(ImagePlugin::default_nearest())
             .set(AssetPlugin {
                 meta_check: AssetMetaCheck::Never,
                 ..default()
@@ -55,6 +60,7 @@ fn main() {
     app.add_plugins(AnimPlugin)
         .add_plugins(DebugPlugin)
         .add_plugins(LayerPlugin::new(SCREEN_UVEC))
+        .add_plugins(MyLdtkPlugin)
         .add_plugins(PhysicsPlugin)
         .add_plugins(RootPlugin);
 

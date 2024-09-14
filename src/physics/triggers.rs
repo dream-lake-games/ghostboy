@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-use super::maint::{impl_physics_comp, PhysicsComp, PhysicsComps, PhysicsCtrl};
+use super::physics_maint::{impl_physics_comp, PhysicsComp, PhysicsComps, PhysicsCtrl};
 
 // INTERESTING PART
 
@@ -22,7 +22,7 @@ pub struct TriggerTx {
     comps: PhysicsComps<TriggerTxComp>,
 }
 impl TriggerTx {
-    pub fn new(data: Vec<(TriggerTxKind, Hbox, Pos)>) -> Self {
+    pub fn new(data: Vec<(TriggerTxKind, Hbox, IVec2)>) -> Self {
         Self {
             ctrl: default(),
             comps: PhysicsComps::new(data),
@@ -34,7 +34,7 @@ pub struct TriggerTxComp {
     kind: TriggerTxKind,
     ctrl: Entity,
     hbox: Hbox,
-    offset: Pos,
+    offset: IVec2,
 }
 #[derive(Component, Clone, Debug, Default, Reflect)]
 pub struct TriggerTxCtrl {
@@ -48,7 +48,7 @@ pub struct TriggerRx {
     comps: PhysicsComps<TriggerRxComp>,
 }
 impl TriggerRx {
-    pub fn new(data: Vec<(TriggerRxKind, Hbox, Pos)>) -> Self {
+    pub fn new(data: Vec<(TriggerRxKind, Hbox, IVec2)>) -> Self {
         Self {
             ctrl: default(),
             comps: PhysicsComps::new(data),
@@ -60,7 +60,7 @@ pub struct TriggerRxComp {
     kind: TriggerRxKind,
     ctrl: Entity,
     hbox: Hbox,
-    offset: Pos,
+    offset: IVec2,
 }
 impl_physics_comp!(TriggerRxKind, TriggerRxComp, TriggerRxCtrl);
 #[derive(Component, Clone, Debug, Default, Reflect)]

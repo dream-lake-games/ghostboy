@@ -1,15 +1,24 @@
 use crate::prelude::*;
 
-fn play_startup(mut commands: Commands) {
-    commands.spawn((
-        SpatialBundle::default(),
-        AnimMan::<SuicidoBody>::new(),
-        StaticTx::new(vec![]),
-        StaticRx::new(vec![]),
-    ));
+mod draw_hitboxes;
+
+fn debug_startup(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut gizmo_config_store: ResMut<GizmoConfigStore>,
+) {
+    commands.spawn(LdtkWorldBundle {
+        ldtk_handle: asset_server.load("ldtk/play.ldtk"),
+        transform: Transform::from_translation(Vec3::new(-80.0, -72.0, 0.0)),
+        ..Default::default()
+    });
+    // Gizmo config
+    let (config, _) = gizmo_config_store.config_mut::<DefaultGizmoConfigGroup>();
+    config.line_width = 2.0;
+    config.render_layers = MainLayer::render_layers();
 }
 
-fn play_update() {}
+fn debug_update() {}
 
 /// The set that contains all physics related systems
 #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
@@ -18,7 +27,9 @@ pub struct DebugSet;
 pub(super) struct DebugPlugin;
 impl Plugin for DebugPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, play_startup.in_set(DebugSet));
-        app.add_systems(Update, play_update.in_set(DebugSet));
+        app.add_systems(Startup, debug_startup.in_set(DebugSet));
+        app.add_systems(Update, debug_update.in_set(DebugSet));
+
+        draw_hitboxes::register_draw_hitboxes(app);
     }
 }

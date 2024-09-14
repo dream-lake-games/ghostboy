@@ -10,16 +10,16 @@ pub struct AnimBodyData {
     pub size: UVec2,
     pub length: u32,
     pub fps: f32,
-    pub pos: Pos,
-    pub fzix: Fzix,
+    pub offset: IVec2,
+    pub zix: f32,
     pub scale: IVec2,
     pub render_layers: RenderLayers,
 }
 impl AnimBodyData {
     fn with_overrides(mut self, overrides: AnimBodyDataOverrides) -> Self {
         self.fps = overrides.override_fps.unwrap_or(self.fps);
-        self.pos = overrides.override_pos.unwrap_or(self.pos);
-        self.fzix = overrides.override_fzix.unwrap_or(self.fzix);
+        self.offset = overrides.override_pos.unwrap_or(self.offset);
+        self.zix = overrides.override_fzix.unwrap_or(self.zix);
         self.scale = overrides.override_scale.unwrap_or(self.scale);
         self
     }
@@ -28,8 +28,8 @@ impl AnimBodyData {
 #[derive(Default, Debug, Clone, Reflect)]
 pub struct AnimBodyDataOverrides {
     pub override_fps: Option<f32>,
-    pub override_pos: Option<Pos>,
-    pub override_fzix: Option<Fzix>,
+    pub override_pos: Option<IVec2>,
+    pub override_fzix: Option<f32>,
     pub override_scale: Option<IVec2>,
 }
 
@@ -186,7 +186,7 @@ impl<StateMachine: AnimStateMachine> AnimBodyDataBundle<StateMachine> {
                 IVec2::ONE,
             )),
             spatial: SpatialBundle::from_transform(Transform {
-                translation: data.pos.as_vec2().extend(data.fzix),
+                translation: data.offset.as_vec2().extend(data.zix),
                 scale: data.scale.extend(1).as_vec3(),
                 ..default()
             }),

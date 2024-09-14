@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-use super::maint::{impl_physics_comp, PhysicsComp, PhysicsComps, PhysicsCtrl};
+use super::physics_maint::{impl_physics_comp, PhysicsComp, PhysicsComps, PhysicsCtrl};
 
 // INTERESTING PART
 
@@ -22,19 +22,22 @@ pub struct StaticTx {
     comps: PhysicsComps<StaticTxComp>,
 }
 impl StaticTx {
-    pub fn new(data: Vec<(StaticTxKind, Hbox, Pos)>) -> Self {
+    pub fn new(data: Vec<(StaticTxKind, Hbox, IVec2)>) -> Self {
         Self {
             ctrl: default(),
             comps: PhysicsComps::new(data),
         }
     }
+    pub fn single(kind: StaticTxKind, hbox: Hbox, pos: IVec2) -> Self {
+        Self::new(vec![(kind, hbox, pos)])
+    }
 }
 #[derive(Component, Clone, Debug, Reflect)]
 pub struct StaticTxComp {
-    kind: StaticTxKind,
-    ctrl: Entity,
-    hbox: Hbox,
-    offset: Pos,
+    pub kind: StaticTxKind,
+    pub ctrl: Entity,
+    pub hbox: Hbox,
+    pub offset: IVec2,
 }
 #[derive(Component, Clone, Debug, Default, Reflect)]
 pub struct StaticTxCtrl {
@@ -48,7 +51,7 @@ pub struct StaticRx {
     comps: PhysicsComps<StaticRxComp>,
 }
 impl StaticRx {
-    pub fn new(data: Vec<(StaticRxKind, Hbox, Pos)>) -> Self {
+    pub fn new(data: Vec<(StaticRxKind, Hbox, IVec2)>) -> Self {
         Self {
             ctrl: default(),
             comps: PhysicsComps::new(data),
@@ -57,10 +60,10 @@ impl StaticRx {
 }
 #[derive(Component, Clone, Debug, Reflect)]
 pub struct StaticRxComp {
-    kind: StaticRxKind,
-    ctrl: Entity,
-    hbox: Hbox,
-    offset: Pos,
+    pub kind: StaticRxKind,
+    pub ctrl: Entity,
+    pub hbox: Hbox,
+    pub offset: IVec2,
 }
 impl_physics_comp!(StaticRxKind, StaticRxComp, StaticRxCtrl);
 #[derive(Component, Clone, Debug, Default, Reflect)]

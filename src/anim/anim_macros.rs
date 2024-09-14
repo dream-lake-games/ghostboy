@@ -14,10 +14,10 @@ macro_rules! defn_animation {
                         fps: $fps:expr,
                     )?
                     $(
-                        pos: ($px:expr, $py:expr),
+                        offset: ($ox:expr, $oy:expr),
                     )?
                     $(
-                        fzix: $fzix:expr,
+                        zix: $zix:expr,
                     )?
                     $(
                         scale: ($scale_w:expr, $scale_h:expr),
@@ -66,9 +66,9 @@ macro_rules! defn_animation {
                                 #[allow(unused, unused_mut)]
                                 let mut fps = DEFAULT_ANIMATION_FPS;
                                 #[allow(unused, unused_mut)]
-                                let mut pos = Pos::default();
+                                let mut offset = IVec2::default();
                                 #[allow(unused, unused_mut)]
-                                let mut fzix = Fzix::default();
+                                let mut zix = f32::default();
                                 #[allow(unused, unused_mut)]
                                 let mut scale = IVec2::ONE;
                                 #[allow(unused, unused_mut)]
@@ -81,10 +81,10 @@ macro_rules! defn_animation {
                                     fps = $fps;
                                 )?
                                 $(
-                                    pos = Pos::new($px, $py);
+                                    offset = Pos::new($ox, $oy);
                                 )?
                                 $(
-                                    fzix = $fzix;
+                                    zix = $zix;
                                 )?
                                 $(
                                     scale = IVec2::new($scale_w, $scale_h);
@@ -98,8 +98,8 @@ macro_rules! defn_animation {
                                     size: UVec2::new($w, $h),
                                     length,
                                     fps,
-                                    pos,
-                                    fzix,
+                                    offset,
+                                    zix,
                                     scale,
                                     render_layers,
                                 }

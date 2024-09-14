@@ -17,11 +17,11 @@ macro_rules! impl_root_types {
                 spatial: SpatialBundle,
             }
             impl [<$name Bundle>] {
-                fn new(pos: Pos, zix: Zix) -> Self {
+                fn new(pos: IVec2, zix: f32) -> Self {
                     Self {
                         name: Name::new(stringify!($name)),
                         marker: [<$name Component>],
-                        spatial: pos_zix_to_spat(pos, zix),
+                        spatial: SpatialBundle::from_transform(Transform::from_translation(pos.as_vec2().extend(zix))),
                     }
                 }
             }
@@ -54,14 +54,14 @@ macro_rules! impl_root_init {
                 )*
             ) {
                 $(
-                    let pos = Pos::default();
+                    let pos = IVec2::default();
                     #[allow(unused_mut, unused_assignments)]
-                    let mut zix = Zix::default();
+                    let mut zix = i32::default();
                     $(
                         zix = $zix;
                     )?
                     #[allow(nonstandard_style)]
-                    let [<$name _eid>] = commands.spawn([<$name Bundle>]::new(pos, zix)).id();
+                    let [<$name _eid>] = commands.spawn([<$name Bundle>]::new(pos, zix as f32)).id();
                     [<$name _res>].eid = [<$name _eid>];
                 )*
             }
