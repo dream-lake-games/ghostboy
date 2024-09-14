@@ -12,13 +12,11 @@ impl Place {}
 
 pub trait Queryable:
     Sized
-    + Copy
+    + Clone
     + Send
     + Sync
     + 'static
     + std::fmt::Debug
-    + PartialEq
-    + Eq
     + Reflect
     + FromReflect
     + TypePath

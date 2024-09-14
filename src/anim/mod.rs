@@ -24,8 +24,7 @@ struct ManagersSet;
 pub(super) struct AnimPlugin;
 impl Plugin for AnimPlugin {
     fn build(&self, app: &mut App) {
-        app.register_type::<anim_mat::AnimMat>();
-        app.register_type::<anim_man::AnimBodyData>();
+        reg_types!(app, AnimMat, AnimBodyData);
 
         app.add_plugins(Material2dPlugin::<anim_mat::AnimMat>::default());
         app.add_plugins(defns::AnimDefnsPlugin);

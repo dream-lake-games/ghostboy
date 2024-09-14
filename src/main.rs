@@ -1,5 +1,6 @@
 pub mod anim;
 pub mod consts;
+pub mod debug;
 pub mod layer;
 pub mod macros;
 pub mod physics;
@@ -9,9 +10,11 @@ pub mod types;
 
 pub mod prelude {
     pub use super::{
-        anim::*, consts::*, layer::*, macros::*, physics::*, roots::*, shorthand::*, types::*,
+        anim::*, consts::*, debug::*, layer::*, macros::*, physics::*, roots::*, shorthand::*,
+        types::*,
     };
     pub use bevy::{
+        ecs::component::StorageType,
         input::common_conditions::input_toggle_active,
         prelude::*,
         reflect::GetTypeRegistration,
@@ -22,10 +25,6 @@ pub mod prelude {
     pub use std::time::Duration;
 }
 use prelude::*;
-
-fn play_startup(mut commands: Commands) {
-    commands.spawn((SpatialBundle::default(), AnimMan::<SuicidoBody>::new()));
-}
 
 fn main() {
     let mut app = App::new();
@@ -54,12 +53,10 @@ fn main() {
 
     // Our plugins
     app.add_plugins(AnimPlugin)
+        .add_plugins(DebugPlugin)
         .add_plugins(LayerPlugin::new(SCREEN_UVEC))
         .add_plugins(PhysicsPlugin)
         .add_plugins(RootPlugin);
-
-    // Play
-    app.add_systems(Startup, play_startup);
 
     // Have fun!
     app.run();

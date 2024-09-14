@@ -68,7 +68,6 @@ fn shephard_bullet_update(world: &mut World) {
 pub(super) struct BulletTimePlugin;
 impl Plugin for BulletTimePlugin {
     fn build(&self, app: &mut App) {
-        app.register_type::<BulletTime>();
         app.insert_resource(BulletTime::new());
         app.add_systems(First, update_bullet_time);
         app.add_systems(Update, drive_bullet_time);

@@ -80,3 +80,14 @@ macro_rules! impl_with {
     };
 }
 pub use impl_with;
+
+/// Just shorthand man
+#[macro_export]
+macro_rules! reg_types {
+    ($app:expr, $($type:ty$(,)?)+) => {{
+        $(
+            $app.register_type::<$type>();
+        )+
+    }};
+}
+pub use reg_types;

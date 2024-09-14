@@ -33,7 +33,7 @@ pub struct AnimBodyDataOverrides {
     pub override_scale: Option<IVec2>,
 }
 
-pub trait AnimBody: Queryable + std::hash::Hash {
+pub trait AnimBody: Queryable + std::hash::Hash + PartialEq + Eq + Copy {
     fn to_body_data(&self) -> AnimBodyData;
 }
 
@@ -50,7 +50,7 @@ pub struct AnimStateData<NextType, BodyType: AnimBody> {
     pub next: AnimNextState<NextType>,
 }
 
-pub trait AnimStateMachine: Queryable + Default {
+pub trait AnimStateMachine: Queryable + Default + PartialEq + Eq + Copy {
     type BodyType: AnimBody;
 
     fn to_state_data(&self) -> AnimStateData<Self, Self::BodyType>;
@@ -273,7 +273,7 @@ fn play_animations<StateMachine: AnimStateMachine>(
             let mat = mats.get_mut(hand.id()).unwrap();
             mat.set_ix(index.ix);
         } else {
-            match index.next {
+            match &index.next {
                 AnimNextState::None => {
                     // Looping the animation
                     if index.length <= 1 {
@@ -286,7 +286,7 @@ fn play_animations<StateMachine: AnimStateMachine>(
                 }
                 AnimNextState::Some(variant) => {
                     // Transitioning to a new state
-                    manager.reset_state(variant);
+                    manager.reset_state(variant.clone());
                 }
                 AnimNextState::Despawn => {
                     // Triggering the death process for this entity
@@ -302,7 +302,7 @@ fn play_animations<StateMachine: AnimStateMachine>(
 }
 
 pub fn register_anim<StateMachine: AnimStateMachine>(app: &mut App) {
-    app.register_type::<AnimMan<StateMachine>>();
+    reg_types!(app, AnimMan<StateMachine>, AnimBodyProgress<StateMachine>);
     app.add_systems(
         PostUpdate,
         (
