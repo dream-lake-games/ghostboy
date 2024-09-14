@@ -1,4 +1,5 @@
 pub mod anim;
+pub mod camera;
 pub mod consts;
 pub mod debug;
 pub mod environment;
@@ -12,8 +13,8 @@ pub mod types;
 
 pub mod prelude {
     pub use super::{
-        anim::*, consts::*, debug::*, environment::*, layer::*, macros::*, math::*, my_ldtk::*,
-        physics::*, roots::*, types::*,
+        anim::*, camera::*, consts::*, debug::*, environment::*, layer::*, macros::*, math::*,
+        my_ldtk::*, physics::*, roots::*, types::*,
     };
     pub use bevy::{
         color::palettes::tailwind,
@@ -58,6 +59,7 @@ fn main() {
 
     // Our plugins
     app.add_plugins(AnimPlugin)
+        .add_plugins(CameraPlugin)
         .add_plugins(DebugPlugin)
         .add_plugins(LayerPlugin::new(SCREEN_UVEC))
         .add_plugins(MyLdtkPlugin)

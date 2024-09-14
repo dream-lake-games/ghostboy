@@ -30,10 +30,10 @@ macro_rules! decl_layer {
         }
     };
 }
-decl_layer!(BgLayer, 0);
-decl_layer!(MainLayer, 1);
-decl_layer!(FgLayer, 2);
-decl_layer!(MenuLayer, 3);
+decl_layer!(BgLayer, 1);
+decl_layer!(MainLayer, 2);
+decl_layer!(FgLayer, 3);
+decl_layer!(MenuLayer, 4);
 
 /// Grows all of the layers by a given scale.
 /// Makes it easy for the game to fill the screen in a satisfying way.
@@ -203,29 +203,31 @@ fn setup_layer_cameras(
     layer_root: Res<LayerRoot>,
 ) {
     macro_rules! spawn_layer_camera {
-        ($comp:ty, $name:expr, $order:expr, $image:expr, $clear_color:expr) => {{
-            commands
-                .spawn((
-                    Name::new($name),
-                    Camera2dBundle {
-                        camera: Camera {
-                            order: $order,
-                            target: RenderTarget::Image($image),
-                            clear_color: $clear_color,
-                            ..default()
-                        },
-                        projection: OrthographicProjection {
-                            near: ZIX_MIN,
-                            far: ZIX_MAX,
-                            scale: 1.0,
-                            ..default()
-                        },
+        ($comp:ty, $name:expr, $order:expr, $image:expr, $clear_color:expr, $follow_dynamic:expr) => {{
+            let mut comms = commands.spawn((
+                Name::new($name),
+                Camera2dBundle {
+                    camera: Camera {
+                        order: $order,
+                        target: RenderTarget::Image($image),
+                        clear_color: $clear_color,
                         ..default()
                     },
-                    <$comp>::default(),
-                    <$comp>::render_layers(),
-                ))
-                .set_parent(layer_root.eid());
+                    projection: OrthographicProjection {
+                        near: ZIX_MIN,
+                        far: ZIX_MAX,
+                        scale: 1.0,
+                        ..default()
+                    },
+                    ..default()
+                },
+                <$comp>::default(),
+                <$comp>::render_layers(),
+            ));
+            comms.set_parent(layer_root.eid());
+            if $follow_dynamic {
+                comms.insert(FollowDynamicCamera);
+            }
         }};
     }
     spawn_layer_camera!(
@@ -233,28 +235,32 @@ fn setup_layer_cameras(
         "bg_camera",
         0,
         camera_targets.bg_target.clone(),
-        layer_colors.bg_clear_color
+        layer_colors.bg_clear_color,
+        false
     );
     spawn_layer_camera!(
         MainLayer,
         "main_camera",
         1,
         camera_targets.main_target.clone(),
-        layer_colors.main_clear_color
+        layer_colors.main_clear_color,
+        true
     );
     spawn_layer_camera!(
         FgLayer,
         "fg_camera",
         2,
         camera_targets.fg_target.clone(),
-        layer_colors.fg_clear_color
+        layer_colors.fg_clear_color,
+        false
     );
     spawn_layer_camera!(
         MenuLayer,
         "menu_camera",
         2,
         camera_targets.menu_target.clone(),
-        layer_colors.menu_clear_color
+        layer_colors.menu_clear_color,
+        false
     );
 }
 

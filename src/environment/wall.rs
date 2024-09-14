@@ -5,16 +5,16 @@ pub struct Wall;
 
 #[derive(Bundle, LdtkIntCell)]
 pub struct WallBundle {
-    wait: MyLdtkWaitForGTran,
+    wait: MyLdtkWait,
     wall: Wall,
     static_tx: StaticTx,
 }
 impl Default for WallBundle {
     fn default() -> Self {
         Self {
-            wait: MyLdtkWaitForGTran::no_dyno(),
+            wait: MyLdtkWait::parent_render_layers(MainLayer::render_layers()),
             wall: Wall,
-            static_tx: StaticTx::single(StaticTxKind::Solid, Hbox::new().with_size(16, 16)),
+            static_tx: StaticTx::single(StaticTxKind::Solid, Hbox::new().with_size(8, 8)),
         }
     }
 }

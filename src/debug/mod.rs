@@ -8,9 +8,8 @@ fn debug_startup(
     mut gizmo_config_store: ResMut<GizmoConfigStore>,
 ) {
     commands.spawn(LdtkWorldBundle {
-        ldtk_handle: asset_server.load("ldtk/play.ldtk"),
-        transform: Transform::from_translation(Vec3::new(-80.0, -72.0, 0.0)),
-        ..Default::default()
+        ldtk_handle: asset_server.load("ldtk/world.ldtk"),
+        ..default()
     });
     // Gizmo config
     let (config, _) = gizmo_config_store.config_mut::<DefaultGizmoConfigGroup>();
@@ -39,7 +38,7 @@ fn debug_update(
         if keyboard.just_pressed(KeyCode::KeyW) {
             dyno.vel.y = jump_mag;
         }
-        dyno.vel.y -= 0.4;
+        dyno.vel.y -= 1.4;
     }
 }
 
