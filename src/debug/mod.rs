@@ -19,8 +19,8 @@ fn debug_startup(
 
 fn debug_update(
     keyboard: Res<ButtonInput<KeyCode>>,
-    mut force: Query<&mut Dyno, With<TestPlayer>>,
-    player_eid: Query<Entity, (With<TestPlayer>, With<Pos>)>,
+    mut force: Query<&mut Dyno, With<GBoy>>,
+    player_eid: Query<Entity, (With<GBoy>, With<Pos>)>,
     mut camera_mode: ResMut<DynamicCameraMode>,
 ) {
     // Horizontal movement

@@ -34,6 +34,8 @@ pub struct AnimBodyDataOverrides {
 }
 
 pub trait AnimBody: Queryable + std::hash::Hash + PartialEq + Eq + Copy {
+    fn all() -> Vec<Self>;
+
     fn to_body_data(&self) -> AnimBodyData;
 }
 
@@ -50,8 +52,10 @@ pub struct AnimStateData<NextType, BodyType: AnimBody> {
     pub next: AnimNextState<NextType>,
 }
 
-pub trait AnimStateMachine: Queryable + Default + PartialEq + Eq + Copy {
+pub trait AnimStateMachine: Queryable + Default + PartialEq + Eq + Copy + std::hash::Hash {
     type BodyType: AnimBody;
+
+    fn all() -> Vec<Self>;
 
     fn to_state_data(&self) -> AnimStateData<Self, Self::BodyType>;
 }
@@ -62,6 +66,8 @@ pub struct AnimMan<StateMachine: AnimStateMachine> {
     pub hidden: bool,
     pub flip_x: bool,
     pub flip_y: bool,
+    // Need to keep handles to loaded assets around so switching doesn't blink
+    pub handle_cache: HashMap<StateMachine::BodyType, Handle<Image>>,
 }
 impl<StateMachine: AnimStateMachine> AnimMan<StateMachine> {
     pub fn new() -> Self {
@@ -70,6 +76,7 @@ impl<StateMachine: AnimStateMachine> AnimMan<StateMachine> {
             hidden: false,
             flip_x: false,
             flip_y: false,
+            handle_cache: default(),
         }
     }
 
@@ -173,16 +180,19 @@ impl<StateMachine: AnimStateMachine> AnimBodyDataBundle<StateMachine> {
         ass: &Res<AssetServer>,
         meshes: &mut ResMut<Assets<Mesh>>,
         mats: &mut ResMut<Assets<AnimMat>>,
+        flip_x: bool,
+        flip_y: bool,
     ) -> Self {
         let mesh = Mesh::from(Rectangle::new(data.size.x as f32, data.size.y as f32));
         Self {
             name: Name::new("body_data_bundle"),
             mesh: meshes.add(mesh).into(),
             material: mats.add(AnimMat::new(
+                // ass.load(data.path),
                 ass.load(data.path),
                 data.length,
-                false,
-                false,
+                flip_x,
+                flip_y,
                 IVec2::ONE,
             )),
             spatial: SpatialBundle::from_transform(Transform {
@@ -232,7 +242,16 @@ fn handle_manager_changes<StateMachine: AnimStateMachine>(
             } else {
                 AnimNextState::None
             };
-            let body_bund = AnimBodyDataBundle::new(body, data, next, &ass, &mut meshes, &mut mats);
+            let body_bund = AnimBodyDataBundle::new(
+                body,
+                data,
+                next,
+                &ass,
+                &mut meshes,
+                &mut mats,
+                manager.flip_x,
+                manager.flip_y,
+            );
             commands.spawn(body_bund).set_parent(eid);
         }
         commands
@@ -301,6 +320,25 @@ fn play_animations<StateMachine: AnimStateMachine>(
     }
 }
 
+/// I think this is okay? Maybe?
+/// Since only one strong handle is ever stored for the same path, this seems fine
+/// Has the nice property that once no more entities AnimMan<X> exist, these handles will be dropped
+fn populate_caches<StateMachine: AnimStateMachine>(
+    ass: Res<AssetServer>,
+    mut anim_man_q: Query<&mut AnimMan<StateMachine>>,
+) {
+    for mut anim_man in &mut anim_man_q {
+        for body in StateMachine::BodyType::all() {
+            if anim_man.handle_cache.contains_key(&body) {
+                continue;
+            }
+            anim_man
+                .handle_cache
+                .insert(body, ass.load(body.to_body_data().path));
+        }
+    }
+}
+
 pub fn register_anim<StateMachine: AnimStateMachine>(app: &mut App) {
     reg_types!(app, AnimMan<StateMachine>, AnimBodyProgress<StateMachine>);
     app.add_systems(
@@ -308,6 +346,7 @@ pub fn register_anim<StateMachine: AnimStateMachine>(app: &mut App) {
         (
             handle_manager_changes::<StateMachine>,
             play_animations::<StateMachine>,
+            populate_caches::<StateMachine>,
         )
             .chain()
             .in_set(AnimationSet)

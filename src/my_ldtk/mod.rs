@@ -19,35 +19,9 @@ impl Plugin for MyLdtkPlugin {
             .insert_resource(LevelSelection::index(0))
             .register_ldtk_int_cell_for_layer::<WallBundle>("Ground", 1)
             .register_ldtk_int_cell_for_layer::<WallBundle>("Platform", 1)
-            .register_ldtk_entity_for_layer::<TestEntBundle>("Entities", "GBoy");
+            .register_ldtk_entity_for_layer::<GBoyBundle>("Entities", "GBoy");
 
         my_ldtk_levels::register_my_ldtk_levels(app);
         my_ldtk_maint::register_ldtk_maint(app);
-    }
-}
-
-#[derive(Component)]
-pub struct TestPlayer;
-
-#[derive(Bundle, LdtkEntity)]
-pub struct TestEntBundle {
-    name: Name,
-    pos: MyLdtkWait,
-    static_rx: StaticRx,
-    anim: AnimMan<GBoyAnim>,
-    test: TestPlayer,
-}
-impl Default for TestEntBundle {
-    fn default() -> Self {
-        Self {
-            name: Name::new("TestEnt"),
-            pos: MyLdtkWait::dyno(default()),
-            static_rx: StaticRx::single(
-                StaticRxKind::Default,
-                Hbox::new().with_offset(0.0, -1.0).with_size(8, 12),
-            ),
-            anim: AnimMan::new(),
-            test: TestPlayer,
-        }
     }
 }

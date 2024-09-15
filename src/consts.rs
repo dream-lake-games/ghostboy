@@ -29,26 +29,26 @@ pub const COLOR_NONE: Color = Color::Srgba(Srgba {
     alpha: 0.0,
 });
 pub const COLOR_1: Color = Color::Srgba(Srgba {
-    red: 0.91372549019,
-    green: 0.96078431372,
-    blue: 0.85490196078,
+    red: 238.0 / 255.0,
+    green: 191.0 / 255.0,
+    blue: 245.0 / 255.0,
     alpha: 1.0,
 });
 pub const COLOR_2: Color = Color::Srgba(Srgba {
-    red: 0.94117647058,
-    green: 0.71372549019,
-    blue: 0.58431372549,
+    red: 158.0 / 255.0,
+    green: 129.0 / 255.0,
+    blue: 208.0 / 255.0,
     alpha: 1.0,
 });
 pub const COLOR_3: Color = Color::Srgba(Srgba {
-    red: 0.5294117647,
-    green: 0.44705882352,
-    blue: 0.52549019607,
+    red: 133.0 / 255.0,
+    green: 69.0 / 255.0,
+    blue: 118.0 / 255.0,
     alpha: 1.0,
 });
 pub const COLOR_4: Color = Color::Srgba(Srgba {
-    red: 0.2431372549,
-    green: 0.22745098039,
-    blue: 0.25882352941,
+    red: 48.0 / 255.0,
+    green: 18.0 / 255.0,
+    blue: 33.0 / 255.0,
     alpha: 1.0,
 });

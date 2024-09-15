@@ -3,6 +3,7 @@ pub mod camera;
 pub mod consts;
 pub mod debug;
 pub mod environment;
+pub mod gboy;
 pub mod layer;
 pub mod macros;
 pub mod math;
@@ -13,8 +14,8 @@ pub mod types;
 
 pub mod prelude {
     pub use super::{
-        anim::*, camera::*, consts::*, debug::*, environment::*, layer::*, macros::*, math::*,
-        my_ldtk::*, physics::*, roots::*, types::*,
+        anim::*, camera::*, consts::*, debug::*, environment::*, gboy::*, layer::*, macros::*,
+        math::*, my_ldtk::*, physics::*, roots::*, types::*,
     };
     pub use bevy::{
         color::palettes::tailwind,
@@ -61,6 +62,7 @@ fn main() {
     app.add_plugins(AnimPlugin)
         .add_plugins(CameraPlugin)
         .add_plugins(DebugPlugin)
+        .add_plugins(GBoyPlugin)
         .add_plugins(LayerPlugin::new(SCREEN_UVEC))
         .add_plugins(MyLdtkPlugin)
         .add_plugins(PhysicsPlugin)

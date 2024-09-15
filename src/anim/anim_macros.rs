@@ -57,6 +57,12 @@ macro_rules! defn_animation {
             }
             impl Queryable for [<AnimBody_ $name>] {}
             impl AnimBody for [<AnimBody_ $name>] {
+                fn all() -> Vec<Self> {
+                    vec![
+                        $(Self::$body_id,)+
+                    ]
+                }
+
                 fn to_body_data(&self) -> AnimBodyData {
                     match &self {
                         $(
@@ -109,7 +115,7 @@ macro_rules! defn_animation {
                 }
             }
 
-            #[derive(Debug, Copy, Clone, PartialEq, Eq, Default, Reflect)]
+            #[derive(Debug, Copy, Clone, PartialEq, Eq, Default, Reflect, std::hash::Hash)]
             pub enum $name {
                 #[default]
                 $($state_id,)+
@@ -117,6 +123,12 @@ macro_rules! defn_animation {
             impl Queryable for $name {}
             impl AnimStateMachine for $name {
                 type BodyType = [<AnimBody_ $name>];
+
+                fn all() -> Vec<Self> {
+                    vec![
+                        $(Self::$state_id,)+
+                    ]
+                }
 
                 fn to_state_data(&self) -> AnimStateData<Self, Self::BodyType> {
                     match &self {
