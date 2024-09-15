@@ -15,6 +15,18 @@ pub enum StaticRxKind {
     Default,
 }
 
+/// When alongside a StaticRxCtrl, it will update every frame if there are any collisions in each Dir
+/// NOTE: Only counts a collision being "pushed" into
+#[derive(Component, Clone, Debug, Reflect, Default)]
+pub struct StaticRxTouches {
+    map: HashMap<Dir, bool>,
+}
+impl StaticRxTouches {
+    pub fn clear(&mut self) {
+        self.map.clear()
+    }
+}
+
 // PLUMBING
 #[derive(Bundle)]
 pub struct StaticTx {
@@ -41,7 +53,7 @@ pub struct StaticTxComp {
 #[derive(Component, Clone, Debug, Default, Reflect)]
 pub struct StaticTxCtrl {
     pub comps: Vec<Entity>,
-    pub colls: Vec<CollKey>,
+    pub coll_keys: Vec<CollKey>,
 }
 impl_physics_comp!(StaticTxKind, StaticTxComp, StaticTxCtrl);
 
@@ -71,5 +83,18 @@ impl_physics_comp!(StaticRxKind, StaticRxComp, StaticRxCtrl);
 #[derive(Component, Clone, Debug, Default, Reflect)]
 pub struct StaticRxCtrl {
     pub comps: Vec<Entity>,
-    pub colls: Vec<CollKey>,
+    pub coll_keys: Vec<CollKey>,
+}
+
+impl std::ops::Index<Dir> for StaticRxTouches {
+    type Output = bool;
+
+    fn index(&self, index: Dir) -> &Self::Output {
+        self.map.get(&index).unwrap_or(&false)
+    }
+}
+impl StaticRxTouches {
+    pub fn set(&mut self, dir: Dir, val: bool) {
+        self.map.insert(dir, val);
+    }
 }

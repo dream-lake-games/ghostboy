@@ -5,13 +5,22 @@ use crate::prelude::*;
 /// to be updated from multiple systems. Debugging this would be a nightmare.
 /// Although the logic here will get hairy, at least it's all in one place
 /// when things go wrong.
-fn update_gboy_animation(mut gboy: Query<(&mut AnimMan<GBoyAnim>, &Dyno)>) {
-    let (mut anim, dyno) = gboy.single_mut();
-    if dyno.vel.x.abs() > 0.1 {
-        anim.set_state(GBoyAnim::Run);
+fn update_gboy_animation(mut gboy: Query<(&mut AnimMan<GBoyAnim>, &Dyno, &StaticRxTouches)>) {
+    let (mut anim, dyno, srx_touches) = gboy.single_mut();
+    let moving_hor = dyno.vel.x.abs() > 0.1;
+
+    if moving_hor {
         anim.set_flip_x(dyno.vel.x < 0.0);
+    }
+
+    if srx_touches[Dir::Down] {
+        if moving_hor {
+            anim.set_state(GBoyAnim::Run);
+        } else {
+            anim.set_state(GBoyAnim::Stand);
+        }
     } else {
-        anim.set_state(GBoyAnim::Stand);
+        anim.set_state(GBoyAnim::Air);
     }
 }
 

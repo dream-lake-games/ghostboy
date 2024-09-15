@@ -24,8 +24,11 @@ impl StaticColls {
     pub fn insert(&mut self, key: CollKey, rec: StaticCollRec) {
         self.map.insert(key, rec);
     }
-    pub fn get<T: AsRef<CollKey>>(&mut self, key: T) -> Option<&StaticCollRec> {
-        self.map.get(key.as_ref())
+    pub fn get(&self, key: &CollKey) -> Option<&StaticCollRec> {
+        self.map.get(key)
+    }
+    pub fn get_refs(&self, coll_keys: &[CollKey]) -> Vec<&StaticCollRec> {
+        coll_keys.iter().filter_map(|key| self.get(key)).collect()
     }
 }
 

@@ -78,7 +78,7 @@ fn resolve_collisions(
         ($q:expr, $eid:expr, $key:expr) => {{
             match $q.get_mut($eid) {
                 Ok(mut thing) => {
-                    thing.colls.push($key);
+                    thing.coll_keys.push($key);
                 }
                 Err(e) => {
                     warn!("fucky stuff happening in resolve_collisions::add_ctrl_coll: {e:?}");
@@ -302,6 +302,30 @@ fn move_interesting_dynos(
     }
 }
 
+fn update_static_rx_touches(
+    mut touches: Query<(&StaticRxCtrl, &mut StaticRxTouches)>,
+    static_colls: Res<StaticColls>,
+) {
+    for (ctrl, mut touches) in &mut touches {
+        touches.clear();
+        for coll in static_colls.get_refs(&ctrl.coll_keys) {
+            const AMT: f32 = 0.00001;
+            if coll.push.x > AMT && coll.rx_perp.x < -AMT {
+                touches.set(Dir::Left, true);
+            }
+            if coll.push.x < -AMT && coll.rx_perp.x > AMT {
+                touches.set(Dir::Right, true);
+            }
+            if coll.push.y > AMT && coll.rx_perp.y < -AMT {
+                touches.set(Dir::Down, true);
+            }
+            if coll.push.y < -AMT && coll.rx_perp.y > AMT {
+                touches.set(Dir::Up, true);
+            }
+        }
+    }
+}
+
 pub(super) fn register_logic(app: &mut App) {
     app.add_systems(
         Update,
@@ -310,6 +334,7 @@ pub(super) fn register_logic(app: &mut App) {
             move_uninteresting_dynos,
             move_static_txs,
             move_interesting_dynos,
+            update_static_rx_touches,
         )
             .chain()
             .in_set(PhysicsSet)

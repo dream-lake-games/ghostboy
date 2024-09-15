@@ -13,3 +13,11 @@ pub trait Queryable:
     + GetTypeRegistration
 {
 }
+
+#[derive(Clone, Copy, Debug, Reflect, std::hash::Hash, PartialEq, Eq)]
+pub enum Dir {
+    Up,
+    Down,
+    Left,
+    Right,
+}

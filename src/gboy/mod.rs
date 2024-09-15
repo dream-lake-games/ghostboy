@@ -11,6 +11,7 @@ pub struct GBoyBundle {
     marker: GBoy,
     anim: AnimMan<GBoyAnim>,
     static_rx: StaticRx,
+    static_rx_touches: StaticRxTouches,
     // TODO: Make spawner
     pos: MyLdtkWait,
 }
@@ -24,6 +25,7 @@ impl Default for GBoyBundle {
                 StaticRxKind::Default,
                 Hbox::new().with_offset(0.0, -1.0).with_size(8, 12),
             ),
+            static_rx_touches: default(),
             pos: MyLdtkWait::dyno(default()),
         }
     }
