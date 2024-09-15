@@ -5,7 +5,7 @@ defn_animation!(
     bodies: [
         stand: {
             path: "gboy/v1_stand.png",
-            size: (18, 18),
+            size: (17, 17),
             offset: (-0.5, -0.5),
         },
         run: {

@@ -28,6 +28,9 @@ impl Pos {
     pub fn as_vec2(&self) -> Vec2 {
         Vec2::new(self.x, self.y)
     }
+    pub fn to_spatial(&self, zix: f32) -> SpatialBundle {
+        SpatialBundle::from_transform(Transform::from_translation(self.as_vec2().extend(zix)))
+    }
 }
 
 #[derive(Component, Clone, Debug, Reflect)]

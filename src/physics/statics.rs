@@ -19,7 +19,7 @@ pub enum StaticRxKind {
 /// NOTE: Only counts a collision being "pushed" into
 #[derive(Component, Clone, Debug, Reflect, Default)]
 pub struct StaticRxTouches {
-    map: HashMap<Dir, bool>,
+    map: HashMap<Dir4, bool>,
 }
 impl StaticRxTouches {
     pub fn clear(&mut self) {
@@ -86,15 +86,15 @@ pub struct StaticRxCtrl {
     pub coll_keys: Vec<CollKey>,
 }
 
-impl std::ops::Index<Dir> for StaticRxTouches {
+impl std::ops::Index<Dir4> for StaticRxTouches {
     type Output = bool;
 
-    fn index(&self, index: Dir) -> &Self::Output {
+    fn index(&self, index: Dir4) -> &Self::Output {
         self.map.get(&index).unwrap_or(&false)
     }
 }
 impl StaticRxTouches {
-    pub fn set(&mut self, dir: Dir, val: bool) {
+    pub fn set(&mut self, dir: Dir4, val: bool) {
         self.map.insert(dir, val);
     }
 }

@@ -312,16 +312,16 @@ fn update_static_rx_touches(
         for coll in static_colls.get_refs(&ctrl.coll_keys) {
             const AMT: f32 = 0.00001;
             if coll.push.x > AMT && coll.rx_perp.x < -AMT {
-                touches.set(Dir::Left, true);
+                touches.set(Dir4::Left, true);
             }
             if coll.push.x < -AMT && coll.rx_perp.x > AMT {
-                touches.set(Dir::Right, true);
+                touches.set(Dir4::Right, true);
             }
             if coll.push.y > AMT && coll.rx_perp.y < -AMT {
-                touches.set(Dir::Down, true);
+                touches.set(Dir4::Down, true);
             }
             if coll.push.y < -AMT && coll.rx_perp.y > AMT {
-                touches.set(Dir::Up, true);
+                touches.set(Dir4::Up, true);
             }
         }
     }

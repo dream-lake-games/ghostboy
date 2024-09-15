@@ -213,6 +213,14 @@ impl<StateMachine: AnimStateMachine> AnimBodyDataBundle<StateMachine> {
     }
 }
 
+fn auto_facing<StateMachine: AnimStateMachine>(
+    mut managers: Query<(&mut AnimMan<StateMachine>, &Facing)>,
+) {
+    for (mut man, face) in &mut managers {
+        man.set_flip_x(face.to_flip_x());
+    }
+}
+
 fn handle_manager_changes<StateMachine: AnimStateMachine>(
     mut commands: Commands,
     managers: Query<
@@ -344,6 +352,7 @@ pub fn register_anim<StateMachine: AnimStateMachine>(app: &mut App) {
     app.add_systems(
         PostUpdate,
         (
+            auto_facing::<StateMachine>,
             handle_manager_changes::<StateMachine>,
             play_animations::<StateMachine>,
             populate_caches::<StateMachine>,

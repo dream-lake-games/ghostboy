@@ -65,6 +65,32 @@ fn post_ldtk_blessing(
     }
 }
 
+/// For spawners who's children should die when they die
+#[derive(Clone, Default, Reflect, Debug)]
+pub struct LdtkDependents {
+    ents: Vec<Entity>,
+}
+impl LdtkDependents {
+    pub fn push(&mut self, ent: Entity) {
+        self.ents.push(ent);
+    }
+}
+impl Component for LdtkDependents {
+    const STORAGE_TYPE: StorageType = StorageType::Table;
+
+    fn register_component_hooks(hooks: &mut bevy::ecs::component::ComponentHooks) {
+        hooks.on_remove(|mut world, eid, _| {
+            let deps = world
+                .get::<LdtkDependents>(eid)
+                .map(|thing| thing.ents.clone())
+                .unwrap_or(vec![]);
+            for dep in deps {
+                world.commands().entity(dep).despawn_recursive();
+            }
+        });
+    }
+}
+
 pub(super) fn register_ldtk_maint(app: &mut App) {
     app.add_systems(PreUpdate, post_ldtk_blessing);
 }

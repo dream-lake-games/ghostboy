@@ -3,8 +3,6 @@ use crate::prelude::*;
 mod gboy_fsm;
 mod spawn;
 
-pub use spawn::GBoySpawnPointBundle;
-
 #[derive(Component, Clone, Debug, Reflect, Default)]
 pub struct GBoy;
 
@@ -16,7 +14,9 @@ struct GBoyBundle {
     static_rx: StaticRx,
     static_rx_touches: StaticRxTouches,
     pos: Pos,
+    facing: Facing,
     dyno: Dyno,
+    dyno_facing: DynoFacing,
     spatial: SpatialBundle,
 }
 impl GBoyBundle {
@@ -31,7 +31,9 @@ impl GBoyBundle {
             ),
             static_rx_touches: default(),
             pos,
+            facing: Facing::Right,
             dyno: default(),
+            dyno_facing: default(),
             spatial: SpatialBundle::from_transform(Transform::from_translation(
                 pos.as_vec2().extend(20.0),
             )),

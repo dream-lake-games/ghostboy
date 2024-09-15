@@ -71,6 +71,7 @@ impl Plugin for PhysicsPlugin {
         app.add_plugins(bullet_time::BulletTimePlugin);
 
         colls::register_colls(app);
+        dyno::register_dynos(app);
         logic::register_logic(app);
         pos::register_pos(app);
     }

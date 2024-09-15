@@ -1,0 +1,25 @@
+<html>
+
+<head>
+
+    <script type="module" nonce="hLMhZz59sc4mjPMUCbWeug==">
+        import init, * as bindings from './bevy_gb_template-b2574993801d545a.js';
+        const wasm = await init('./bevy_gb_template-b2574993801d545a_bg.wasm');
+
+
+        window.wasmBindings = bindings;
+
+
+        dispatchEvent(new CustomEvent("TrunkApplicationStarted", { detail: { wasm } }));
+
+    </script>
+
+
+    <link rel="modulepreload" href="./bevy_gb_template-b2574993801d545a.js" crossorigin=anonymous
+        integrity="sha384-OQHcNm5gNCEmkApIxXNPUeXzwgATiSIqBqXWiXZ+uo5S3LjY68otJl3DZcUHcmCf">
+    <link rel="preload" href="./bevy_gb_template-b2574993801d545a_bg.wasm" crossorigin=anonymous
+        integrity="sha384-xVTjgFPbHHTwKcKH/Dw8NhTICqdI74lWWWGhZUGr1tbkzhmfNKS0OlIx5BZZ3Uye" as="fetch"
+        type="application/wasm">
+</head>
+
+</html>

@@ -9,11 +9,7 @@ fn update_gboy_animation(mut gboy: Query<(&mut AnimMan<GBoyAnim>, &Dyno, &Static
     let (mut anim, dyno, srx_touches) = gboy.single_mut();
     let moving_hor = dyno.vel.x.abs() > 0.1;
 
-    if moving_hor {
-        anim.set_flip_x(dyno.vel.x < 0.0);
-    }
-
-    if srx_touches[Dir::Down] {
+    if srx_touches[Dir4::Down] {
         if moving_hor {
             anim.set_state(GBoyAnim::Run);
         } else {

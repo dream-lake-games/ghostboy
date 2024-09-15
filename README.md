@@ -36,3 +36,18 @@ Running locally:
 cargo run --target wasm32-unknown-unknown
 ```
 
+
+Buildign with trunk
+
+```bash
+# From root
+trunk build
+# The -o just opens index
+npx http-server dist -o
+```
+
+Then zip dist, and upload to itch
+
+NO
+
+You need to go into `dist/index.html` and change `/dlkfsjskdfsfldskj` to `./lsdfkjsdfklj`. Then it works

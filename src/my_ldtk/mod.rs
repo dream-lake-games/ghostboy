@@ -4,7 +4,7 @@ mod my_ldtk_levels;
 mod my_ldtk_maint;
 
 pub use my_ldtk_levels::CurrentLevelHelpers;
-pub use my_ldtk_maint::MyLdtkWait;
+pub use my_ldtk_maint::{LdtkDependents as MyLdtkDependents, MyLdtkWait};
 
 pub(super) struct MyLdtkPlugin;
 impl Plugin for MyLdtkPlugin {
@@ -16,11 +16,7 @@ impl Plugin for MyLdtkPlugin {
                 },
                 ..default()
             })
-            .insert_resource(LevelSelection::iid("6707e010-4ce0-11ef-8458-1d8de6fabb3d"))
-            .register_ldtk_int_cell_for_layer::<WallBundle>("Ground", 1)
-            .register_ldtk_int_cell_for_layer::<WallBundle>("Platform", 1)
-            .register_ldtk_entity_for_layer::<GBoySpawnPointBundle>("Entities", "GBoySpawn");
-
+            .insert_resource(LevelSelection::iid("6707e010-4ce0-11ef-8458-1d8de6fabb3d"));
         my_ldtk_levels::register_my_ldtk_levels(app);
         my_ldtk_maint::register_ldtk_maint(app);
     }

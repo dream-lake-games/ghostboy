@@ -4,12 +4,10 @@ use crate::prelude::*;
 struct GBoySpawnPoint;
 
 #[derive(Bundle, LdtkEntity)]
-pub struct GBoySpawnPointBundle {
+struct GBoySpawnPointBundle {
     name: Name,
     marker: GBoySpawnPoint,
     wait: MyLdtkWait,
-    // Lol just to see the outline
-    // trigger: TriggerTx,
 }
 impl Default for GBoySpawnPointBundle {
     fn default() -> Self {
@@ -17,7 +15,6 @@ impl Default for GBoySpawnPointBundle {
             name: Name::new("gboy_spawn_point"),
             marker: GBoySpawnPoint,
             wait: MyLdtkWait::default(),
-            // trigger: TriggerTx::single(TriggerTxKind::Solid, Hbox::new().with_size(10, 10)),
         }
     }
 }
@@ -45,4 +42,5 @@ fn simple_spawn(
 
 pub(super) fn register_spawn(app: &mut App) {
     app.add_systems(PreUpdate, simple_spawn.run_if(no_gboy_exists));
+    app.register_ldtk_entity_for_layer::<GBoySpawnPointBundle>("Entities", "GBoySpawn");
 }

@@ -16,6 +16,7 @@ pub const DEFAULT_ANIMATION_FPS: f32 = 16.0;
 
 // Keeping constant ZIX's here makes debugging weird layering stuff MUCH easier
 pub const ZIX_GBOY: f32 = 20.0;
+pub const ZIX_SKELLY: f32 = 19.0;
 pub const ZIX_MAX: f32 = 600.0; // Anything further forward than this gets culled by the camera(s)
 pub const ZIX_MENU: i32 = 50;
 pub const ZIX_MIN: f32 = -600.0; // Anything further back than this gets culled by the camera(s)
