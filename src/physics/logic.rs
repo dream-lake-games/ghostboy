@@ -71,7 +71,25 @@ fn resolve_collisions(
 
     for my_srx_comp in my_srx_comps {
         let mut my_thbox = my_srx_comp.hbox.translated(my_pos.x, my_pos.y);
-        for other_stx_comp in stx_comps {
+        // TODO: Performance engineer if needed
+        // In order to avoid weird behavior when sliding along a straight edge, do this
+        // First filter to only things it's colliding with
+        let mut can_possibly_collide = stx_comps
+            .iter()
+            .filter(|other_stx_comp| {
+                let other_hbox = translate_other!(other_stx_comp);
+                my_thbox.overlaps_with(&other_hbox)
+            })
+            .collect::<Vec<_>>();
+        // Then sort by distance (this should work as long as hitboxes are smallish?)
+        can_possibly_collide.sort_by(|a, b| {
+            let ahbox = translate_other!(a);
+            let bhbox = translate_other!(b);
+            let dist_a = my_thbox.get_offset().distance_squared(ahbox.get_offset());
+            let dist_b = my_thbox.get_offset().distance_squared(bhbox.get_offset());
+            dist_a.total_cmp(&dist_b)
+        });
+        for other_stx_comp in can_possibly_collide {
             if other_stx_comp.ctrl == my_eid {
                 // Don't collide with ourselves, stupid
                 continue;
