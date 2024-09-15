@@ -41,6 +41,7 @@ pub struct TriggerTxComp {
 #[derive(Component, Clone, Debug, Default, Reflect)]
 pub struct TriggerTxCtrl {
     pub comps: Vec<Entity>,
+    pub colls: Vec<CollKey>,
 }
 impl_physics_comp!(TriggerTxKind, TriggerTxComp, TriggerTxCtrl);
 
@@ -70,4 +71,5 @@ impl_physics_comp!(TriggerRxKind, TriggerRxComp, TriggerRxCtrl);
 #[derive(Component, Clone, Debug, Default, Reflect)]
 pub struct TriggerRxCtrl {
     pub comps: Vec<Entity>,
+    pub colls: Vec<CollKey>,
 }

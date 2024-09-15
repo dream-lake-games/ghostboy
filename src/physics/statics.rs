@@ -41,6 +41,7 @@ pub struct StaticTxComp {
 #[derive(Component, Clone, Debug, Default, Reflect)]
 pub struct StaticTxCtrl {
     pub comps: Vec<Entity>,
+    pub colls: Vec<CollKey>,
 }
 impl_physics_comp!(StaticTxKind, StaticTxComp, StaticTxCtrl);
 
@@ -70,4 +71,5 @@ impl_physics_comp!(StaticRxKind, StaticRxComp, StaticRxCtrl);
 #[derive(Component, Clone, Debug, Default, Reflect)]
 pub struct StaticRxCtrl {
     pub comps: Vec<Entity>,
+    pub colls: Vec<CollKey>,
 }

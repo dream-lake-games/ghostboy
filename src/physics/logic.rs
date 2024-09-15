@@ -60,6 +60,10 @@ fn resolve_collisions(
     trigger_coll_counter: &mut CollKey,
     static_colls: &mut ResMut<StaticColls>,
     trigger_colls: &mut ResMut<TriggerColls>,
+    srx_ctrls: &mut Query<&mut StaticRxCtrl>,
+    stx_ctrls: &mut Query<&mut StaticTxCtrl>,
+    trx_ctrls: &mut Query<&mut TriggerRxCtrl>,
+    ttx_ctrls: &mut Query<&mut TriggerTxCtrl>,
 ) {
     macro_rules! translate_other {
         ($comp:expr) => {{
@@ -68,6 +72,18 @@ fn resolve_collisions(
                 .expect("Bad pos in translate_other")
                 .clone();
             $comp.hbox.translated(tmp_pos.x, tmp_pos.y)
+        }};
+    }
+    macro_rules! add_ctrl_coll {
+        ($q:expr, $eid:expr, $key:expr) => {{
+            match $q.get_mut($eid) {
+                Ok(mut thing) => {
+                    thing.colls.push($key);
+                }
+                Err(e) => {
+                    warn!("fucky stuff happening in resolve_collisions::add_ctrl_coll: {e:?}");
+                }
+            };
         }};
     }
 
@@ -108,14 +124,16 @@ fn resolve_collisions(
                     push,
                     rx_perp: old_perp,
                     rx_par: old_par,
-                    tx_ctrl: other_stx_comp.ctrl,
-                    tx_kind: other_stx_comp.kind,
                     rx_ctrl: my_srx_comp.ctrl,
                     rx_kind: my_srx_comp.kind,
+                    tx_ctrl: other_stx_comp.ctrl,
+                    tx_kind: other_stx_comp.kind,
                 };
                 let key = *static_coll_counter;
                 *static_coll_counter += 1;
                 static_colls.insert(key, coll_rec);
+                add_ctrl_coll!(srx_ctrls, my_srx_comp.ctrl, key);
+                add_ctrl_coll!(stx_ctrls, other_stx_comp.ctrl, key);
 
                 *my_pos += push;
                 // NOTE: HAVE TO UPDATE MY_THBOX HERE SINCE POS CHANGED
@@ -150,6 +168,8 @@ fn resolve_collisions(
                 let key = *trigger_coll_counter;
                 *trigger_coll_counter += 1;
                 trigger_colls.insert(key, coll_rec);
+                add_ctrl_coll!(trx_ctrls, my_trx_comp.ctrl, key);
+                add_ctrl_coll!(ttx_ctrls, other_ttx_comp.ctrl, key);
             }
         }
     }
@@ -176,22 +196,21 @@ fn move_interesting_dynos(
             With<TriggerTxCtrl>,
         )>,
     >,
+    mut srx_ctrls: Query<&mut StaticRxCtrl>,
+    mut stx_ctrls: Query<&mut StaticTxCtrl>,
+    mut trx_ctrls: Query<&mut TriggerRxCtrl>,
+    mut ttx_ctrls: Query<&mut TriggerTxCtrl>,
     srx_comps: Query<&StaticRxComp>,
     stx_comps: Query<&StaticTxComp>,
     trx_comps: Query<&TriggerRxComp>,
     ttx_comps: Query<&TriggerTxComp>,
-    // Objects that have a static receiver. They may also have triggers.
+    // Objects that have a static rx. They may also have a trigger rx.
     ents: Query<
-        (
-            Entity,
-            Option<&StaticRxCtrl>,
-            Option<&TriggerRxCtrl>,
-            Option<&TriggerTxCtrl>,
-        ),
+        Entity,
         (
             With<Dyno>,
             Without<StaticTxCtrl>,
-            Or<(With<StaticRxCtrl>, With<TriggerRxCtrl>, With<TriggerTxCtrl>)>,
+            Or<(With<StaticRxCtrl>, With<TriggerRxCtrl>)>,
         ),
     >,
     mut static_colls: ResMut<StaticColls>,
@@ -201,7 +220,8 @@ fn move_interesting_dynos(
     let mut trigger_coll_counter: CollKey = 0;
 
     // First move static rxs
-    for (eid, srx_ctrl, trx_ctrl, ttx_ctrl) in &ents {
+    // for (eid, srx_ctrl, trx_ctrl, ttx_ctrl) in &ents {
+    for eid in &ents {
         // Get the data
         let mut scratch_pos = pos_q.get(eid).expect("No pos on interesting ent").clone();
         let mut scratch_vel = dyno_q
@@ -222,9 +242,10 @@ fn move_interesting_dynos(
                     .unwrap_or(vec![])
             }};
         }
+        let srx_ctrl = srx_ctrls.get(eid).ok();
+        let trx_ctrl = srx_ctrls.get(eid).ok();
         let my_srx_comps = get_comps!(srx_ctrl, srx_comps);
         let my_trx_comps = get_comps!(trx_ctrl, trx_comps);
-        let my_ttx_comps = get_comps!(ttx_ctrl, ttx_comps);
         // Inch
         macro_rules! call_resolve_collisions {
             () => {{
@@ -241,6 +262,10 @@ fn move_interesting_dynos(
                     &mut trigger_coll_counter,
                     &mut static_colls,
                     &mut trigger_colls,
+                    &mut srx_ctrls,
+                    &mut stx_ctrls,
+                    &mut trx_ctrls,
+                    &mut ttx_ctrls,
                 );
             }};
         }

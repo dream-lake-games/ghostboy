@@ -11,10 +11,10 @@ pub struct StaticCollRec {
     /// Before collision, component of receivers velocity perpendicular to normal direction
     /// Name is weird because it's "parallel" to original vel of rx
     pub rx_par: Vec2,
-    pub tx_ctrl: Entity,
-    pub tx_kind: StaticTxKind,
     pub rx_ctrl: Entity,
     pub rx_kind: StaticRxKind,
+    pub tx_ctrl: Entity,
+    pub tx_kind: StaticTxKind,
 }
 #[derive(Resource, Debug, Reflect)]
 pub struct StaticColls {
@@ -32,10 +32,10 @@ impl StaticColls {
 #[derive(Debug, Clone, Reflect)]
 pub struct TriggerCollRec {
     pub pos: Pos,
-    pub tx_ctrl: Entity,
-    pub tx_kind: TriggerTxKind,
     pub rx_ctrl: Entity,
     pub rx_kind: TriggerRxKind,
+    pub tx_ctrl: Entity,
+    pub tx_kind: TriggerTxKind,
 }
 #[derive(Resource, Debug, Reflect)]
 pub struct TriggerColls {
