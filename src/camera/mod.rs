@@ -2,7 +2,7 @@ use crate::prelude::*;
 
 mod camera_movement;
 
-pub use camera_movement::FollowDynamicCamera;
+pub use camera_movement::{DynamicCameraMode, FollowDynamicCamera};
 
 /// The set that contains all camera related systems
 #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]

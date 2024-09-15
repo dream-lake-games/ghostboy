@@ -20,6 +20,8 @@ fn debug_startup(
 fn debug_update(
     keyboard: Res<ButtonInput<KeyCode>>,
     mut force: Query<&mut Dyno, With<TestPlayer>>,
+    player_eid: Query<Entity, (With<TestPlayer>, With<Pos>)>,
+    mut camera_mode: ResMut<DynamicCameraMode>,
 ) {
     // Horizontal movement
     let mut hor_dir = 0.0;
@@ -39,6 +41,9 @@ fn debug_update(
             dyno.vel.y = jump_mag;
         }
         dyno.vel.y -= 1.4;
+    }
+    if let Ok(eid) = player_eid.get_single() {
+        *camera_mode = DynamicCameraMode::Follow(eid);
     }
 }
 
