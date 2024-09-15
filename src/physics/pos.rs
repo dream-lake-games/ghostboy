@@ -25,6 +25,9 @@ impl Pos {
     pub fn new(x: f32, y: f32) -> Self {
         Self { x, y }
     }
+    pub fn as_vec2(&self) -> Vec2 {
+        Vec2::new(self.x, self.y)
+    }
 }
 
 #[derive(Component, Clone, Debug, Reflect)]

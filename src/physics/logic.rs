@@ -209,6 +209,7 @@ fn move_interesting_dynos(
         Entity,
         (
             With<Dyno>,
+            With<Pos>,
             Without<StaticTxCtrl>,
             Or<(With<StaticRxCtrl>, With<TriggerRxCtrl>)>,
         ),

@@ -35,12 +35,12 @@ fn debug_update(
         dyno.vel.x = hor_dir * hor_mag;
     }
     // Jump
-    let jump_mag = 100.0;
+    let jump_mag = 130.0;
     for mut dyno in &mut force {
         if keyboard.just_pressed(KeyCode::KeyW) {
             dyno.vel.y = jump_mag;
         }
-        dyno.vel.y -= 1.4;
+        dyno.vel.y -= 2.8;
     }
     if let Ok(eid) = player_eid.get_single() {
         *camera_mode = DynamicCameraMode::Follow(eid);

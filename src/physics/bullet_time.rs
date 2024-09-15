@@ -16,6 +16,7 @@ pub struct BulletTime {
 impl BulletTime {
     const NORMAL: f32 = 1.0;
     const SLOW: f32 = 0.2;
+    const STOPPED: f32 = 0.0;
 
     pub fn new() -> Self {
         Self {
@@ -27,7 +28,6 @@ impl BulletTime {
     pub fn delta(&self) -> Duration {
         self.main_duration
     }
-
     pub fn delta_seconds(&self) -> f32 {
         self.main_duration.as_secs_f32()
     }
@@ -35,11 +35,12 @@ impl BulletTime {
     pub fn set_normal(&mut self) {
         self.set_time_factor(Self::NORMAL);
     }
-
     pub fn set_slow(&mut self) {
         self.set_time_factor(Self::SLOW);
     }
-
+    pub fn set_stopped(&mut self) {
+        self.set_time_factor(Self::STOPPED);
+    }
     pub fn set_time_factor(&mut self, factor: f32) {
         self.time_factor = factor;
     }

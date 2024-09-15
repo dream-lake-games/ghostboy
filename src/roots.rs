@@ -88,6 +88,8 @@ macro_rules! impl_root_init {
 impl_root_init!(
     DebugRoot,
     LayerRoot,
+    LevelRoot,
+    LastLevelRoot,
     MenuRoot(ZIX_MENU),
     ParticlesRoot(ZIX_PARTICLES),
     SoundRoot,

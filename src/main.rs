@@ -32,11 +32,39 @@ pub mod prelude {
 }
 use prelude::*;
 
+fn get_window_plugin() -> WindowPlugin {
+    use bevy::window::*;
+
+    #[allow(unexpected_cfgs)]
+    if cfg!(target_arch = "wasm32") {
+        WindowPlugin {
+            primary_window: Some(Window {
+                resizable: true,
+                title: "GB TEMPLATE".to_string(),
+                resolution: WindowResolution::new(SCREEN_WIDTH_f32 * 4.0, SCREEN_HEIGHT_f32 * 4.0),
+                ..default()
+            }),
+            ..default()
+        }
+    } else {
+        WindowPlugin {
+            primary_window: Some(Window {
+                resizable: true,
+                title: "GB TEMPLATE".to_string(),
+                resolution: WindowResolution::new(SCREEN_WIDTH_f32, SCREEN_HEIGHT_f32),
+                mode: WindowMode::BorderlessFullscreen,
+                ..default()
+            }),
+            ..default()
+        }
+    }
+}
+
 fn main() {
     let mut app = App::new();
 
     // Bevy (or ecosystem) Plugins
-    use bevy::{asset::AssetMetaCheck, window::*};
+    use bevy::asset::AssetMetaCheck;
     app.add_plugins(
         DefaultPlugins
             .set(ImagePlugin::default_nearest())
@@ -44,16 +72,7 @@ fn main() {
                 meta_check: AssetMetaCheck::Never,
                 ..default()
             })
-            .set(WindowPlugin {
-                primary_window: Some(Window {
-                    resizable: true,
-                    title: "GB TEMPLATE".to_string(),
-                    resolution: WindowResolution::new(SCREEN_WIDTH_f32, SCREEN_HEIGHT_f32),
-                    mode: WindowMode::BorderlessFullscreen,
-                    ..default()
-                }),
-                ..default()
-            })
+            .set(get_window_plugin())
             .set(ImagePlugin::default_nearest()),
     )
     .add_plugins(WorldInspectorPlugin::default().run_if(input_toggle_active(false, KeyCode::Tab)));
