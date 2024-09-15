@@ -66,7 +66,7 @@ pub(super) fn register_pos(app: &mut App) {
         (update_ipos, update_transforms)
             .chain()
             .in_set(PhysicsSet)
-            .in_set(super::CollisionSet)
+            .in_set(super::CollSet)
             .in_set(super::PosSet),
     );
 }

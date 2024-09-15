@@ -1,6 +1,7 @@
 use crate::prelude::*;
 
 pub mod bullet_time;
+pub mod colls;
 pub mod dyno;
 pub mod hbox;
 mod logic;
@@ -10,6 +11,7 @@ pub mod statics;
 pub mod triggers;
 
 pub use bullet_time::*;
+pub use colls::*;
 pub use dyno::*;
 pub use hbox::*;
 pub use pos::*;
@@ -23,7 +25,7 @@ pub struct PhysicsSet;
 /// The physics-internal set that resolves collisions
 /// NOTE: Subset of PhysicsSet
 #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
-struct CollisionSet;
+struct CollSet;
 
 /// The physics-internal set that resolves collisions
 /// NOTE: Subset of CollisionSet
@@ -37,6 +39,11 @@ impl Plugin for PhysicsPlugin {
             app,
             // bullet_time.rs
             BulletTime,
+            // collisions.rs
+            StaticCollRec,
+            StaticColls,
+            TriggerCollRec,
+            TriggerColls,
             // dyno.rs
             Dyno,
             // hbox.rs
@@ -63,6 +70,7 @@ impl Plugin for PhysicsPlugin {
 
         app.add_plugins(bullet_time::BulletTimePlugin);
 
+        colls::register_colls(app);
         logic::register_logic(app);
         pos::register_pos(app);
     }

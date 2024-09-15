@@ -45,7 +45,6 @@ fn resolve_collisions(
     my_vel: &mut Vec2,
     my_srx_comps: &[&StaticRxComp],
     my_trx_comps: &[&TriggerRxComp],
-    my_ttx_comps: &[&TriggerTxComp],
     pos_q: &Query<
         &mut Pos,
         Or<(
@@ -56,8 +55,11 @@ fn resolve_collisions(
         )>,
     >,
     stx_comps: &Query<&StaticTxComp>,
-    trx_comps: &Query<&TriggerRxComp>,
     ttx_comps: &Query<&TriggerTxComp>,
+    static_coll_counter: &mut CollKey,
+    trigger_coll_counter: &mut CollKey,
+    static_colls: &mut ResMut<StaticColls>,
+    trigger_colls: &mut ResMut<TriggerColls>,
 ) {
     macro_rules! translate_other {
         ($comp:expr) => {{
@@ -69,6 +71,7 @@ fn resolve_collisions(
         }};
     }
 
+    // First handle static collisions
     for my_srx_comp in my_srx_comps {
         let mut my_thbox = my_srx_comp.hbox.translated(my_pos.x, my_pos.y);
         // TODO: Performance engineer if needed
@@ -96,12 +99,27 @@ fn resolve_collisions(
             }
             let other_thbox = translate_other!(other_stx_comp);
             if let Some(push) = my_thbox.get_push_out(&other_thbox) {
+                // STATIC COLLISION HERE
+                let old_perp = my_vel.dot(push.normalize_or_zero()) * push.normalize_or_zero();
+                let old_par = *my_vel - old_perp;
+
+                let coll_rec = StaticCollRec {
+                    pos: my_pos.clone(),
+                    push,
+                    rx_perp: old_perp,
+                    rx_par: old_par,
+                    tx_ctrl: other_stx_comp.ctrl,
+                    tx_kind: other_stx_comp.kind,
+                    rx_ctrl: my_srx_comp.ctrl,
+                    rx_kind: my_srx_comp.kind,
+                };
+                let key = *static_coll_counter;
+                *static_coll_counter += 1;
+                static_colls.insert(key, coll_rec);
+
                 *my_pos += push;
                 // NOTE: HAVE TO UPDATE MY_THBOX HERE SINCE POS CHANGED
                 my_thbox = my_thbox.translated(push.x, push.y);
-
-                let old_perp = my_vel.dot(push.normalize_or_zero()) * push.normalize_or_zero();
-                let old_par = *my_vel - old_perp;
 
                 match (my_srx_comp.kind, other_stx_comp.kind) {
                     (StaticRxKind::Default, StaticTxKind::Solid) => {
@@ -111,6 +129,27 @@ fn resolve_collisions(
                         }
                     }
                 }
+            }
+        }
+    }
+
+    // Then handle trigger collisions
+    for my_trx_comp in my_trx_comps {
+        let my_thbox = my_trx_comp.hbox.translated(my_pos.x, my_pos.y);
+        for other_ttx_comp in ttx_comps {
+            let other_thbox = translate_other!(other_ttx_comp);
+            if my_thbox.overlaps_with(&other_thbox) {
+                // TRIGGER COLLISION HERE
+                let coll_rec = TriggerCollRec {
+                    pos: my_pos.clone(),
+                    tx_ctrl: other_ttx_comp.ctrl,
+                    tx_kind: other_ttx_comp.kind,
+                    rx_ctrl: my_trx_comp.ctrl,
+                    rx_kind: my_trx_comp.kind,
+                };
+                let key = *trigger_coll_counter;
+                *trigger_coll_counter += 1;
+                trigger_colls.insert(key, coll_rec);
             }
         }
     }
@@ -155,7 +194,12 @@ fn move_interesting_dynos(
             Or<(With<StaticRxCtrl>, With<TriggerRxCtrl>, With<TriggerTxCtrl>)>,
         ),
     >,
+    mut static_colls: ResMut<StaticColls>,
+    mut trigger_colls: ResMut<TriggerColls>,
 ) {
+    let mut static_coll_counter: CollKey = 0;
+    let mut trigger_coll_counter: CollKey = 0;
+
     // First move static rxs
     for (eid, srx_ctrl, trx_ctrl, ttx_ctrl) in &ents {
         // Get the data
@@ -182,20 +226,27 @@ fn move_interesting_dynos(
         let my_trx_comps = get_comps!(trx_ctrl, trx_comps);
         let my_ttx_comps = get_comps!(ttx_ctrl, ttx_comps);
         // Inch
+        macro_rules! call_resolve_collisions {
+            () => {{
+                resolve_collisions(
+                    eid,
+                    &mut scratch_pos,
+                    &mut scratch_vel,
+                    &my_srx_comps,
+                    &my_trx_comps,
+                    &pos_q,
+                    &stx_comps,
+                    &ttx_comps,
+                    &mut static_coll_counter,
+                    &mut trigger_coll_counter,
+                    &mut static_colls,
+                    &mut trigger_colls,
+                );
+            }};
+        }
         const DELTA_PER_INCH: f32 = 1.0;
         // Resolve collisions once always so stationary objects are still pushed out of each other
-        resolve_collisions(
-            eid,
-            &mut scratch_pos,
-            &mut scratch_vel,
-            &my_srx_comps,
-            &my_trx_comps,
-            &my_ttx_comps,
-            &pos_q,
-            &stx_comps,
-            &trx_comps,
-            &ttx_comps,
-        );
+        call_resolve_collisions!();
         // Inch horizontally
         let mut amt_moved_hor: f32 = 0.0;
         let max_inch_hor = scratch_vel.x.abs() * bullet_time.delta_seconds();
@@ -204,18 +255,7 @@ fn move_interesting_dynos(
             let moving_this_step = DELTA_PER_INCH.min(dont_overshoot);
             amt_moved_hor += moving_this_step;
             scratch_pos.x += scratch_vel.x.signum() * moving_this_step;
-            resolve_collisions(
-                eid,
-                &mut scratch_pos,
-                &mut scratch_vel,
-                &my_srx_comps,
-                &my_trx_comps,
-                &my_ttx_comps,
-                &pos_q,
-                &stx_comps,
-                &trx_comps,
-                &ttx_comps,
-            );
+            call_resolve_collisions!();
         }
         // Then inch vertically
         let mut amt_moved_ver: f32 = 0.0;
@@ -225,18 +265,7 @@ fn move_interesting_dynos(
             let moving_this_step = DELTA_PER_INCH.min(dont_overshoot);
             amt_moved_ver += moving_this_step;
             scratch_pos.y += scratch_vel.y.signum() * moving_this_step;
-            resolve_collisions(
-                eid,
-                &mut scratch_pos,
-                &mut scratch_vel,
-                &my_srx_comps,
-                &my_trx_comps,
-                &my_ttx_comps,
-                &pos_q,
-                &stx_comps,
-                &trx_comps,
-                &ttx_comps,
-            );
+            call_resolve_collisions!();
         }
         // NOTE: Why do this (inch horizontally then vertically)? Stops bugs going up and down against wall.
         // ^read: celeste does this
@@ -259,7 +288,7 @@ pub(super) fn register_logic(app: &mut App) {
         )
             .chain()
             .in_set(PhysicsSet)
-            .in_set(super::CollisionSet)
+            .in_set(super::CollSet)
             .before(super::PosSet),
     );
 }

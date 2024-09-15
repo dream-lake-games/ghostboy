@@ -86,13 +86,10 @@ macro_rules! impl_root_init {
 }
 
 impl_root_init!(
-    CollisionRoot,
     DebugRoot,
     LayerRoot,
     MenuRoot(ZIX_MENU),
     ParticlesRoot(ZIX_PARTICLES),
-    RoomRoot,
     SoundRoot,
-    TransitionRoot(ZIX_TRANSITION),
-    TutorialRoot
+    TransitionRoot(ZIX_TRANSITION)
 );

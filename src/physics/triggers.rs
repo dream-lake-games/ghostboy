@@ -34,9 +34,9 @@ impl TriggerTx {
 }
 #[derive(Component, Clone, Debug, Reflect)]
 pub struct TriggerTxComp {
-    kind: TriggerTxKind,
-    ctrl: Entity,
-    hbox: Hbox,
+    pub kind: TriggerTxKind,
+    pub ctrl: Entity,
+    pub hbox: Hbox,
 }
 #[derive(Component, Clone, Debug, Default, Reflect)]
 pub struct TriggerTxCtrl {
@@ -62,9 +62,9 @@ impl TriggerRx {
 }
 #[derive(Component, Clone, Debug, Reflect)]
 pub struct TriggerRxComp {
-    kind: TriggerRxKind,
-    ctrl: Entity,
-    hbox: Hbox,
+    pub kind: TriggerRxKind,
+    pub ctrl: Entity,
+    pub hbox: Hbox,
 }
 impl_physics_comp!(TriggerRxKind, TriggerRxComp, TriggerRxCtrl);
 #[derive(Component, Clone, Debug, Default, Reflect)]
