@@ -59,7 +59,6 @@ fn resolve_collisions(
     trx_comps: &Query<&TriggerRxComp>,
     ttx_comps: &Query<&TriggerTxComp>,
 ) {
-    let thing = 1;
     macro_rules! translate_other {
         ($comp:expr) => {{
             let tmp_pos = pos_q
@@ -120,10 +119,10 @@ fn move_interesting_dynos(
             With<TriggerTxCtrl>,
         )>,
     >,
-    mut srx_comps: Query<&StaticRxComp>,
-    mut stx_comps: Query<&StaticTxComp>,
-    mut trx_comps: Query<&TriggerRxComp>,
-    mut ttx_comps: Query<&TriggerTxComp>,
+    srx_comps: Query<&StaticRxComp>,
+    stx_comps: Query<&StaticTxComp>,
+    trx_comps: Query<&TriggerRxComp>,
+    ttx_comps: Query<&TriggerTxComp>,
     // Objects that have a static receiver. They may also have triggers.
     ents: Query<
         (
@@ -165,9 +164,7 @@ fn move_interesting_dynos(
         let my_trx_comps = get_comps!(trx_ctrl, trx_comps);
         let my_ttx_comps = get_comps!(ttx_ctrl, ttx_comps);
         // Inch
-        let max_inch = scratch_vel.length() * bullet_time.delta_seconds();
         const DELTA_PER_INCH: f32 = 1.0;
-        let mut amt_moved: f32 = 0.0;
         // Resolve collisions once always so stationary objects are still pushed out of each other
         resolve_collisions(
             eid,
@@ -181,11 +178,14 @@ fn move_interesting_dynos(
             &trx_comps,
             &ttx_comps,
         );
-        while amt_moved < max_inch.min(scratch_vel.length()) - 0.0001 {
-            let dont_overshoot = (max_inch.min(scratch_vel.length()) - amt_moved).max(0.0);
+        // Inch horizontally
+        let mut amt_moved_hor: f32 = 0.0;
+        let max_inch_hor = scratch_vel.x.abs() * bullet_time.delta_seconds();
+        while amt_moved_hor < max_inch_hor.min(scratch_vel.x.abs()) {
+            let dont_overshoot = (max_inch_hor.min(scratch_vel.x.abs()) - amt_moved_hor).max(0.0);
             let moving_this_step = DELTA_PER_INCH.min(dont_overshoot);
-            amt_moved += moving_this_step;
-            scratch_pos += scratch_vel.normalize_or_zero() * moving_this_step;
+            amt_moved_hor += moving_this_step;
+            scratch_pos.x += scratch_vel.x.signum() * moving_this_step;
             resolve_collisions(
                 eid,
                 &mut scratch_pos,
@@ -199,6 +199,29 @@ fn move_interesting_dynos(
                 &ttx_comps,
             );
         }
+        // Then inch vertically
+        let mut amt_moved_ver: f32 = 0.0;
+        let max_inch_ver = scratch_vel.y.abs() * bullet_time.delta_seconds();
+        while amt_moved_ver < max_inch_ver.min(scratch_vel.y.abs()) {
+            let dont_overshoot = (max_inch_ver.min(scratch_vel.y.abs()) - amt_moved_ver).max(0.0);
+            let moving_this_step = DELTA_PER_INCH.min(dont_overshoot);
+            amt_moved_ver += moving_this_step;
+            scratch_pos.y += scratch_vel.y.signum() * moving_this_step;
+            resolve_collisions(
+                eid,
+                &mut scratch_pos,
+                &mut scratch_vel,
+                &my_srx_comps,
+                &my_trx_comps,
+                &my_ttx_comps,
+                &pos_q,
+                &stx_comps,
+                &trx_comps,
+                &ttx_comps,
+            );
+        }
+        // NOTE: Why do this (inch horizontally then vertically)? Stops bugs going up and down against wall.
+        // ^read: celeste does this
         // Set the data
         let mut set_pos = pos_q.get_mut(eid).expect("No pos on interesting ent");
         let mut set_dyno = dyno_q.get_mut(eid).expect("No dyno on interesting ent");

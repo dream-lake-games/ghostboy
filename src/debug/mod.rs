@@ -19,7 +19,7 @@ fn debug_startup(
 
 fn debug_update(
     keyboard: Res<ButtonInput<KeyCode>>,
-    mut force: Query<&mut Dyno, With<StaticRxCtrl>>,
+    mut force: Query<&mut Dyno, With<TestPlayer>>,
 ) {
     // Horizontal movement
     let mut hor_dir = 0.0;

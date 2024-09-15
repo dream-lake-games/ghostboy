@@ -1,5 +1,21 @@
 use crate::prelude::*;
 
+#[derive(Resource, Clone, Debug, Reflect)]
+struct CameraMovementConsts {
+    /// What is the max pixels that the user is allowed to be in front of the camera horizontally?
+    hor_forward_leash: u32,
+    /// What is the max pixels that the user is allowed to be behind the camera horizontally?
+    hor_backward_leash: u32,
+}
+impl Default for CameraMovementConsts {
+    fn default() -> Self {
+        Self {
+            hor_forward_leash: 0,
+            hor_backward_leash: SCREEN_WIDTH / 4,
+        }
+    }
+}
+
 #[derive(Component, Clone, Debug, Reflect)]
 struct DynamicCamera;
 
@@ -25,7 +41,7 @@ fn spawn_dynamic_camera(mut commands: Commands, root: Res<LayerRoot>) {
 
 fn camera_follow_test(
     mut dynamic_camera: Query<&mut Pos, With<DynamicCamera>>,
-    test_player: Query<&IPos, (With<StaticRxCtrl>, Without<DynamicCamera>)>,
+    test_player: Query<&IPos, (With<TestPlayer>, Without<DynamicCamera>)>,
 ) {
     let Ok(mut pos) = dynamic_camera.get_single_mut() else {
         warn!("yikes camerafollow");

@@ -17,12 +17,16 @@ impl Plugin for MyLdtkPlugin {
     }
 }
 
+#[derive(Component)]
+pub struct TestPlayer;
+
 #[derive(Bundle, LdtkEntity)]
 pub struct TestEntBundle {
     name: Name,
     pos: MyLdtkWait,
     static_rx: StaticRx,
     anim: AnimMan<GBoyAnim>,
+    test: TestPlayer,
 }
 impl Default for TestEntBundle {
     fn default() -> Self {
@@ -34,6 +38,7 @@ impl Default for TestEntBundle {
                 Hbox::new().with_offset(0.0, -1.0).with_size(8, 12),
             ),
             anim: AnimMan::new(),
+            test: TestPlayer,
         }
     }
 }
