@@ -6,6 +6,7 @@ pub mod enemies;
 pub mod environment;
 pub mod gboy;
 pub mod input;
+pub mod juice;
 pub mod layer;
 pub mod macros;
 pub mod math;
@@ -17,7 +18,7 @@ pub mod types;
 pub mod prelude {
     pub use super::{
         anim::*, camera::*, consts::*, debug::*, enemies::*, environment::*, gboy::*, input::*,
-        layer::*, macros::*, my_ldtk::*, physics::*, roots::*, types::*,
+        juice::*, layer::*, macros::*, my_ldtk::*, physics::*, roots::*, types::*,
     };
     pub use bevy::{
         color::palettes::tailwind,
@@ -32,6 +33,7 @@ pub mod prelude {
     pub use bevy_ecs_ldtk::ldtk::FieldInstance;
     pub use bevy_ecs_ldtk::prelude::*;
     pub use bevy_inspector_egui::quick::WorldInspectorPlugin;
+    pub use rand::{thread_rng, Rng};
     pub use std::time::Duration;
 }
 use prelude::*;
@@ -87,6 +89,7 @@ fn main() {
         .add_plugins(EnvironmentPlugin)
         .add_plugins(GBoyPlugin)
         .add_plugins(InputPlugin)
+        .add_plugins(JuicePlugin)
         .add_plugins(LayerPlugin::new(SCREEN_UVEC))
         .add_plugins(MyLdtkPlugin)
         .add_plugins(PhysicsPlugin)

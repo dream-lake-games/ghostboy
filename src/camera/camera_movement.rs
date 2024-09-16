@@ -100,14 +100,15 @@ fn move_camera(
 fn follow_dynamic_camera(
     dynamic_camera: Query<&Pos, With<DynamicCamera>>,
     mut followers: Query<&mut Transform, (With<FollowDynamicCamera>, Without<DynamicCamera>)>,
+    camera_shake: Res<CameraShakeOffset>,
 ) {
     let Ok(leader) = dynamic_camera.get_single() else {
         warn!("yikes followdynamic");
         return;
     };
     for mut tran in &mut followers {
-        tran.translation.x = leader.x;
-        tran.translation.y = leader.y;
+        tran.translation.x = leader.x + camera_shake.offset.x as f32;
+        tran.translation.y = leader.y + camera_shake.offset.y as f32;
     }
 }
 

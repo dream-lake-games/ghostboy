@@ -14,9 +14,15 @@ defn_animation!(
             length: 5,
             offset: (-0.5, -0.5),
         },
-        air: {
-            path: "gboy/v1_air.png",
+        air_full: {
+            path: "gboy/v1_air_full.png",
             size: (17, 17),
+            offset: (-0.5, -0.5),
+        },
+        air_empty: {
+            path: "gboy/v1_air_empty.png",
+            size: (17, 17),
+            length: 3,
             offset: (-0.5, -0.5),
         },
     ],
@@ -31,9 +37,14 @@ defn_animation!(
                 run,
             ],
         },
-        Air: {
+        AirFull: {
             parts: [
-                air,
+                air_full,
+            ],
+        },
+        AirEmpty: {
+            parts: [
+                air_empty,
             ],
         }
     ],

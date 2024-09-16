@@ -10,6 +10,7 @@ struct GBoyControlConsts {
     jump_vel: f32,
     dash_speed: f32,
     dash_time: f32,
+    dash_shake_time: f32,
 }
 impl Default for GBoyControlConsts {
     fn default() -> Self {
@@ -22,6 +23,7 @@ impl Default for GBoyControlConsts {
             jump_vel: 156.0,
             dash_speed: 200.0,
             dash_time: 0.1,
+            dash_shake_time: 0.2,
         }
     }
 }
@@ -42,10 +44,21 @@ impl Component for Dashing {
     fn register_component_hooks(hooks: &mut bevy::ecs::component::ComponentHooks) {
         hooks.on_add(|mut world, eid, _| {
             world.commands().entity(eid).remove::<Gravity>();
+            world.commands().entity(eid).remove::<CanDash>();
         });
         hooks.on_remove(|mut world, eid, _| {
             world.commands().entity(eid).insert(Gravity::default());
         });
+    }
+}
+
+#[derive(Clone, Debug, Reflect)]
+pub(super) struct CanDash;
+impl Component for CanDash {
+    const STORAGE_TYPE: StorageType = StorageType::Table;
+
+    fn register_component_hooks(hooks: &mut bevy::ecs::component::ComponentHooks) {
+        hooks.on_add(|mut world, eid, _| {});
     }
 }
 
@@ -128,14 +141,28 @@ fn limit_speed(
     }
 }
 
+/// Replenish abilility to dash
+fn replenish_gboy_dash(
+    mut commands: Commands,
+    mut gboy_q: Query<(Entity, &StaticRxTouches), (With<GBoy>, Without<Dashing>, Without<CanDash>)>,
+) {
+    let Ok((eid, touches)) = gboy_q.get_single_mut() else {
+        return;
+    };
+    if touches[Dir4::Down] {
+        commands.entity(eid).insert(CanDash);
+    }
+}
+
 /// Potentially start a dash
 /// NOTE: Only when gboy is NOT dashing
 fn start_gboy_dash(
     dir4_input: Res<Dir4Input>,
     gbutton_input: Res<GButtonInput>,
-    mut gboy_q: Query<(Entity, &mut Dyno, &Facing), (With<GBoy>, Without<Dashing>)>,
+    mut gboy_q: Query<(Entity, &mut Dyno, &Facing), (With<GBoy>, Without<Dashing>, With<CanDash>)>,
     consts: Res<GBoyControlConsts>,
     mut commands: Commands,
+    mut camera_shake: ResMut<CameraShake>,
 ) {
     let Ok((eid, mut dyno, facing)) = gboy_q.get_single_mut() else {
         return;
@@ -150,6 +177,7 @@ fn start_gboy_dash(
         commands
             .entity(eid)
             .insert(Dashing::new(vel, consts.dash_time));
+        camera_shake.start_shake(consts.dash_shake_time);
     }
 }
 
@@ -168,20 +196,38 @@ fn end_gboy_dash(
     }
 }
 
+fn juice_gboy_dash_fade(
+    mut commands: Commands,
+    pos: Query<(&Pos, &Facing), (With<GBoy>, With<Dashing>)>,
+) {
+    for (pos, facing) in &pos {
+        commands.spawn((
+            pos.to_spatial(ZIX_GBOY - 0.1),
+            AnimMan::<DashFade>::new().with_flip_x(facing.to_flip_x()),
+        ));
+    }
+}
+
 pub(super) fn register_control(app: &mut App) {
     app.insert_resource(GBoyControlConsts::default());
     debug_resource!(app, GBoyControlConsts);
 
     app.add_systems(
         BulletUpdate,
-        (control_gboy_hor, limit_speed)
+        (control_gboy_hor, limit_speed, juice_gboy_dash_fade)
             .chain()
             .after(PhysicsSet)
             .run_if(one_gboy_exists),
     );
     app.add_systems(
         Update,
-        (control_gboy_ver, start_gboy_dash, end_gboy_dash)
+        (
+            control_gboy_ver,
+            replenish_gboy_dash,
+            start_gboy_dash,
+            end_gboy_dash,
+        )
+            .chain()
             .after(PhysicsSet)
             .run_if(one_gboy_exists),
     );
