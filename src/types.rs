@@ -39,6 +39,9 @@ impl Facing {
             Self::Left
         }
     }
+    pub fn right(&self) -> bool {
+        self == &Self::Right
+    }
 }
 
 #[derive(Clone, Copy, Debug, Reflect, std::hash::Hash, PartialEq, Eq)]
