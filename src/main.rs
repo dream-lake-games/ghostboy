@@ -33,6 +33,7 @@ pub mod prelude {
     pub use bevy_ecs_ldtk::ldtk::FieldInstance;
     pub use bevy_ecs_ldtk::prelude::*;
     pub use bevy_inspector_egui::quick::WorldInspectorPlugin;
+    pub use rand::prelude::SliceRandom;
     pub use rand::{thread_rng, Rng};
     pub use std::time::Duration;
 }

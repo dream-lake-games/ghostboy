@@ -91,3 +91,17 @@ macro_rules! reg_types {
     }};
 }
 pub use reg_types;
+
+/// Pick a random enum variant
+#[macro_export]
+macro_rules! impl_rand_variant {
+    ($enum:ty) => {
+        impl $enum {
+            pub fn random() -> Self {
+                let all = Self::all();
+                all.choose(&mut thread_rng()).unwrap().clone()
+            }
+        }
+    };
+}
+pub use impl_rand_variant;

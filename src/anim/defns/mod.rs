@@ -14,6 +14,8 @@ impl Plugin for AnimDefnsPlugin {
         register_anim::<GBoyAnim>(app);
         register_anim::<SkellyAnim>(app);
         // juice
-        register_anim::<DashFade>(app);
+        register_anim::<DashFadeAnim>(app);
+        register_anim::<SmokeDown>(app);
+        register_anim::<SmokeCirc>(app);
     }
 }

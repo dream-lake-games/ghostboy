@@ -45,6 +45,8 @@ impl Component for Dashing {
         hooks.on_add(|mut world, eid, _| {
             world.commands().entity(eid).remove::<Gravity>();
             world.commands().entity(eid).remove::<CanDash>();
+            let pos = world.get::<Pos>(eid).unwrap().clone();
+            world.commands().trigger(DashJuiceEvent { pos });
         });
         hooks.on_remove(|mut world, eid, _| {
             world.commands().entity(eid).insert(Gravity::default());
@@ -100,14 +102,16 @@ fn control_gboy_hor(
 /// NOTE: Only when gboy is NOT dashing
 fn control_gboy_ver(
     gbutton_input: Res<GButtonInput>,
-    mut gboy_q: Query<(&mut Dyno, &StaticRxTouches), (With<GBoy>, Without<Dashing>)>,
+    mut gboy_q: Query<(&mut Dyno, &StaticRxTouches, &Pos), (With<GBoy>, Without<Dashing>)>,
     consts: Res<GBoyControlConsts>,
+    mut commands: Commands,
 ) {
-    let Ok((mut dyno, touches)) = gboy_q.get_single_mut() else {
+    let Ok((mut dyno, touches, pos)) = gboy_q.get_single_mut() else {
         return;
     };
     if gbutton_input.just_pressed(GButton::A) && touches[Dir4::Down] {
         dyno.vel.y = consts.jump_vel;
+        commands.trigger(JumpJuiceEvent { pos: pos.clone() });
     }
 }
 
@@ -162,7 +166,6 @@ fn start_gboy_dash(
     mut gboy_q: Query<(Entity, &mut Dyno, &Facing), (With<GBoy>, Without<Dashing>, With<CanDash>)>,
     consts: Res<GBoyControlConsts>,
     mut commands: Commands,
-    mut camera_shake: ResMut<CameraShake>,
 ) {
     let Ok((eid, mut dyno, facing)) = gboy_q.get_single_mut() else {
         return;
@@ -177,7 +180,6 @@ fn start_gboy_dash(
         commands
             .entity(eid)
             .insert(Dashing::new(vel, consts.dash_time));
-        camera_shake.start_shake(consts.dash_shake_time);
     }
 }
 
@@ -203,9 +205,42 @@ fn juice_gboy_dash_fade(
     for (pos, facing) in &pos {
         commands.spawn((
             pos.to_spatial(ZIX_GBOY - 0.1),
-            AnimMan::<DashFade>::new().with_flip_x(facing.to_flip_x()),
+            AnimMan::<DashFadeAnim>::new().with_flip_x(facing.to_flip_x()),
         ));
     }
+}
+
+// Juice when a jump starts
+#[derive(Event)]
+struct JumpJuiceEvent {
+    pos: Pos,
+}
+fn jump_juice(trigger: Trigger<JumpJuiceEvent>, mut commands: Commands) {
+    let pos = trigger.event().pos;
+    let down_smoke_pos = Pos::new(pos.x, pos.y - 1.0);
+    commands.spawn((
+        down_smoke_pos.to_spatial(ZIX_PARTICLES),
+        AnimMan::<SmokeDown>::new().with_state(SmokeDown::random()),
+    ));
+}
+
+// Juice when a dash starts
+#[derive(Event)]
+struct DashJuiceEvent {
+    pos: Pos,
+}
+fn dash_juice(
+    trigger: Trigger<DashJuiceEvent>,
+    mut commands: Commands,
+    mut camera_shake: ResMut<CameraShake>,
+    consts: Res<GBoyControlConsts>,
+) {
+    let pos = trigger.event().pos;
+    commands.spawn((
+        pos.to_spatial(ZIX_PARTICLES),
+        AnimMan::<SmokeCirc>::new().with_state(SmokeCirc::random()),
+    ));
+    camera_shake.start_shake(consts.dash_shake_time);
 }
 
 pub(super) fn register_control(app: &mut App) {
@@ -231,4 +266,8 @@ pub(super) fn register_control(app: &mut App) {
             .after(PhysicsSet)
             .run_if(one_gboy_exists),
     );
+
+    // juice
+    app.observe(jump_juice);
+    app.observe(dash_juice);
 }

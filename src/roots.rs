@@ -90,7 +90,7 @@ impl_root_init!(
     LayerRoot,
     LevelRoot,
     MenuRoot(ZIX_MENU),
-    ParticlesRoot(ZIX_PARTICLES),
+    ParticlesRoot(ZIX_PARTICLES as i32),
     SoundRoot,
     TransitionRoot(ZIX_TRANSITION)
 );
