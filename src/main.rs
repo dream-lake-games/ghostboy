@@ -5,6 +5,7 @@ pub mod debug;
 pub mod enemies;
 pub mod environment;
 pub mod gboy;
+pub mod input;
 pub mod layer;
 pub mod macros;
 pub mod math;
@@ -15,13 +16,14 @@ pub mod types;
 
 pub mod prelude {
     pub use super::{
-        anim::*, camera::*, consts::*, debug::*, enemies::*, environment::*, gboy::*, layer::*,
-        macros::*, my_ldtk::*, physics::*, roots::*, types::*,
+        anim::*, camera::*, consts::*, debug::*, enemies::*, environment::*, gboy::*, input::*,
+        layer::*, macros::*, my_ldtk::*, physics::*, roots::*, types::*,
     };
     pub use bevy::{
         color::palettes::tailwind,
         ecs::component::StorageType,
         input::common_conditions::input_toggle_active,
+        math::VectorSpace,
         prelude::*,
         reflect::GetTypeRegistration,
         render::view::RenderLayers,
@@ -84,6 +86,7 @@ fn main() {
         .add_plugins(EnemiesPlugin)
         .add_plugins(EnvironmentPlugin)
         .add_plugins(GBoyPlugin)
+        .add_plugins(InputPlugin)
         .add_plugins(LayerPlugin::new(SCREEN_UVEC))
         .add_plugins(MyLdtkPlugin)
         .add_plugins(PhysicsPlugin)

@@ -1,5 +1,17 @@
 use crate::prelude::*;
 
+#[derive(Resource, Clone, Debug, Reflect)]
+struct PhysicsConsts {
+    gravity_strength: f32,
+}
+impl Default for PhysicsConsts {
+    fn default() -> Self {
+        Self {
+            gravity_strength: 540.0,
+        }
+    }
+}
+
 /// A helpful function to make sure physics things exist as we expect them to
 fn invariants(
     dyno_without_pos: Query<Entity, (With<Dyno>, Without<Pos>)>,
@@ -327,6 +339,19 @@ fn update_static_rx_touches(
     }
 }
 
+// Nasty hack... :(
+fn apply_fake_gravity(mut ents: Query<(&mut Dyno, &Gravity)>) {
+    for (mut dyno, _) in &mut ents {
+        dyno.vel.y -= 0.01;
+    }
+}
+
+fn apply_gravity(mut ents: Query<(&mut Dyno, &Gravity)>, consts: Res<PhysicsConsts>) {
+    for (mut dyno, grav) in &mut ents {
+        dyno.vel.y -= grav.mult * consts.gravity_strength / FRAMERATE;
+    }
+}
+
 pub(super) fn register_logic(app: &mut App) {
     app.add_systems(
         Update,
@@ -342,4 +367,12 @@ pub(super) fn register_logic(app: &mut App) {
             .in_set(super::CollSet)
             .before(super::PosSet),
     );
+
+    app.insert_resource(PhysicsConsts::default());
+    debug_resource!(app, PhysicsConsts);
+    app.add_systems(
+        Update,
+        apply_fake_gravity.in_set(PhysicsSet).after(super::CollSet),
+    );
+    app.add_systems(BulletUpdate, apply_gravity.in_set(PhysicsSet));
 }

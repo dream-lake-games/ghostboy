@@ -1,5 +1,6 @@
 use crate::prelude::*;
 
+mod control;
 mod gboy_fsm;
 mod spawn;
 
@@ -14,8 +15,8 @@ struct GBoyBundle {
     static_rx: StaticRx,
     static_rx_touches: StaticRxTouches,
     pos: Pos,
-    facing: Facing,
     dyno: Dyno,
+    gravity: Gravity,
     dyno_facing: DynoFacing,
     spatial: SpatialBundle,
 }
@@ -31,8 +32,8 @@ impl GBoyBundle {
             ),
             static_rx_touches: default(),
             pos,
-            facing: Facing::Right,
             dyno: default(),
+            gravity: default(),
             dyno_facing: default(),
             spatial: SpatialBundle::from_transform(Transform::from_translation(
                 pos.as_vec2().extend(20.0),
@@ -61,6 +62,7 @@ impl Plugin for GBoyPlugin {
     fn build(&self, app: &mut App) {
         reg_types!(app, GBoy);
 
+        control::register_control(app);
         gboy_fsm::register_gboy_fsm(app);
         spawn::register_spawn(app);
     }
