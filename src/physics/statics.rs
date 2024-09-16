@@ -4,12 +4,12 @@ use super::physics_maint::{impl_physics_comp, PhysicsComp, PhysicsComps, Physics
 
 // INTERESTING PART
 
-#[derive(Clone, Copy, Debug, Reflect)]
+#[derive(Clone, Copy, Debug, Reflect, PartialEq, Eq, std::hash::Hash)]
 pub enum StaticTxKind {
     /// Standard solid thing. Stops stuff
     Solid,
 }
-#[derive(Clone, Copy, Debug, Reflect)]
+#[derive(Clone, Copy, Debug, Reflect, PartialEq, Eq, std::hash::Hash)]
 pub enum StaticRxKind {
     /// Pushes the rx ctrl out of tx comps, sets vel to zero along plane of intersection
     Default,

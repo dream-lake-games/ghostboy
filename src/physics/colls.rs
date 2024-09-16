@@ -48,18 +48,36 @@ impl TriggerColls {
     pub fn insert(&mut self, key: CollKey, rec: TriggerCollRec) {
         self.map.insert(key, rec);
     }
-    pub fn get<T: AsRef<CollKey>>(&mut self, key: T) -> Option<&TriggerCollRec> {
-        self.map.get(key.as_ref())
+    pub fn get(&self, key: &CollKey) -> Option<&TriggerCollRec> {
+        self.map.get(key)
+    }
+    pub fn get_refs(&self, coll_keys: &[CollKey]) -> Vec<&TriggerCollRec> {
+        coll_keys.iter().filter_map(|key| self.get(key)).collect()
     }
 }
 
 fn reset_colls_every_frame(
     mut static_colls: ResMut<StaticColls>,
     mut trigger_colls: ResMut<TriggerColls>,
+    mut srx_ctrls: Query<&mut StaticRxCtrl>,
+    mut stx_ctrls: Query<&mut StaticTxCtrl>,
+    mut trx_ctrls: Query<&mut TriggerRxCtrl>,
+    mut ttx_ctrls: Query<&mut TriggerTxCtrl>,
 ) {
     // Eh at some point we may want to shrink memory used, but this probably fine
     static_colls.map.clear();
     trigger_colls.map.clear();
+    macro_rules! clear_coll_keys {
+        ($thing:expr) => {
+            for mut thing in &mut $thing {
+                thing.coll_keys.clear();
+            }
+        };
+    }
+    clear_coll_keys!(srx_ctrls);
+    clear_coll_keys!(stx_ctrls);
+    clear_coll_keys!(trx_ctrls);
+    clear_coll_keys!(ttx_ctrls);
 }
 
 pub(super) fn register_colls(app: &mut App) {

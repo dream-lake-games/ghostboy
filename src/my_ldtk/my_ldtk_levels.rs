@@ -17,7 +17,7 @@ pub struct StartSwitchToLevel {
 /// - GBoy outside current level, but is in another level -> switch to that level
 /// - GBoy outside current level, is not in another level -> invisible wall
 fn change_current_level(
-    mut gboy: Query<(&mut Pos, &mut Dyno), With<GBoy>>,
+    mut gboy: Query<(Entity, &mut Pos, &mut Dyno), With<GBoy>>,
     levels: Query<(&LevelIid, &GlobalTransform)>,
     ldtk_projects: Query<&Handle<LdtkProject>>,
     ldtk_project_assets: Res<Assets<LdtkProject>>,
@@ -26,7 +26,7 @@ fn change_current_level(
     mut commands: Commands,
 ) {
     // Do nothing cases
-    let Ok((mut gboy_pos, mut dyno)) = gboy.get_single_mut() else {
+    let Ok((gboy_eid, mut gboy_pos, mut dyno)) = gboy.get_single_mut() else {
         return;
     };
     let gboy_vec2 = gboy_pos.as_vec2();
@@ -72,11 +72,12 @@ fn change_current_level(
             });
         }
         None => {
-            gboy_pos.x = gboy_pos.x.max(current_bounds.min.x);
-            gboy_pos.x = gboy_pos.x.min(current_bounds.max.x);
-            gboy_pos.y = gboy_pos.y.max(current_bounds.min.y);
-            gboy_pos.y = gboy_pos.y.min(current_bounds.max.y);
-            dyno.vel = default();
+            // gboy_pos.x = gboy_pos.x.max(current_bounds.min.x);
+            // gboy_pos.x = gboy_pos.x.min(current_bounds.max.x);
+            // gboy_pos.y = gboy_pos.y.max(current_bounds.min.y);
+            // gboy_pos.y = gboy_pos.y.min(current_bounds.max.y);
+            // dyno.vel = default();
+            commands.entity(gboy_eid).despawn_recursive();
         }
     }
 }

@@ -1,17 +1,20 @@
 use crate::prelude::*;
 
 #[derive(Component, Clone, Debug, Reflect)]
-struct Tombstone;
-#[derive(Clone, Debug, Reflect)]
-struct TombstoneActive;
+struct Tombstone {
+    iid: String,
+}
+#[derive(Clone, Debug)]
+struct TombstoneActive {
+    level_selection: LevelSelection,
+}
 impl Component for TombstoneActive {
     const STORAGE_TYPE: StorageType = StorageType::Table;
     fn register_component_hooks(hooks: &mut bevy::ecs::component::ComponentHooks) {
         hooks.on_add(|mut world, eid, _| {
+            // Then update the animation
             let mut anim = world.get_mut::<AnimMan<TombstoneAnim>>(eid).unwrap();
-            if anim.get_state() != TombstoneAnim::Reach {
-                anim.set_state(TombstoneAnim::Active);
-            }
+            anim.set_state(TombstoneAnim::Reach);
         });
         hooks.on_remove(|mut world, eid, _| {
             let mut anim = world.get_mut::<AnimMan<TombstoneAnim>>(eid).unwrap();
@@ -19,20 +22,12 @@ impl Component for TombstoneActive {
         });
     }
 }
-#[derive(Clone, Debug, Reflect)]
+#[derive(Component, Clone, Debug, Reflect)]
 struct TombstoneReached;
-impl Component for TombstoneReached {
-    const STORAGE_TYPE: StorageType = StorageType::Table;
-    fn register_component_hooks(hooks: &mut bevy::ecs::component::ComponentHooks) {
-        hooks.on_add(|mut world, eid, _| {
-            let mut anim = world.get_mut::<AnimMan<TombstoneAnim>>(eid).unwrap();
-            anim.set_state(TombstoneAnim::Reach);
-        });
-    }
-}
 
 #[derive(Component, Default)]
 struct TombstoneHere {
+    iid: String,
     is_initial: bool,
 }
 #[derive(Bundle)]
@@ -56,7 +51,10 @@ impl LdtkEntity for TombstoneHereBundle {
             panic!("woop bad tombstone!");
         };
         Self {
-            marker: TombstoneHere { is_initial },
+            marker: TombstoneHere {
+                iid: entity_instance.iid.clone(),
+                is_initial,
+            },
             wait: default(),
         }
     }
@@ -66,12 +64,21 @@ fn materialize_tombstones(
     query: Query<(Entity, &TombstoneHere, &Pos)>,
     mut commands: Commands,
     root: Res<LevelRoot>,
+    level_selection: Res<LevelSelection>,
+    existing: Query<&Tombstone>,
 ) {
     for (eid, here, pos) in &query {
-        let mut comms = commands.spawn(TombstoneBundle::new(pos.clone()));
-        comms.set_parent(root.eid());
-        if here.is_initial {
-            comms.insert((TombstoneActive, TombstoneReached));
+        if !existing.iter().any(|tomb| tomb.iid == here.iid) {
+            let mut comms = commands.spawn(TombstoneBundle::new(here.iid.clone(), pos.clone()));
+            comms.set_parent(root.eid());
+            if here.is_initial {
+                comms.insert((
+                    TombstoneActive {
+                        level_selection: level_selection.clone(),
+                    },
+                    TombstoneReached,
+                ));
+            }
         }
         commands.entity(eid).despawn_recursive();
     }
@@ -87,11 +94,11 @@ struct TombstoneBundle {
     trigger_rx: TriggerRx,
 }
 impl TombstoneBundle {
-    pub fn new(pos: Pos) -> Self {
+    pub fn new(iid: String, pos: Pos) -> Self {
         let hacked_pos = Pos::new(pos.x, pos.y + 4.0);
         Self {
             name: Name::new("tombstone"),
-            marker: Tombstone,
+            marker: Tombstone { iid },
             anim: AnimMan::new(),
             pos: hacked_pos,
             spatial: hacked_pos.to_spatial(ZIX_TOMBSTONE),
@@ -104,20 +111,48 @@ impl TombstoneBundle {
 }
 
 fn tombstone_spawn(
-    active: Query<&Pos, With<TombstoneActive>>,
+    active: Query<(&Pos, &TombstoneActive)>,
     mut commands: Commands,
     root: Res<LevelRoot>,
+    mut level_selection: ResMut<LevelSelection>,
 ) {
-    let Ok(pos) = active.get_single() else {
+    let Ok((pos, active)) = active.get_single() else {
         return;
     };
+    *level_selection = active.level_selection.clone();
     commands
         .spawn(super::GBoyBundle::new(pos.clone()))
         .set_parent(root.eid());
+}
+
+fn reach_and_activate_tombstones(
+    trigger_colls: Res<TriggerColls>,
+    waiting_q: Query<(Entity, &TriggerRxCtrl), (With<Tombstone>, Without<TombstoneActive>)>,
+    mut commands: Commands,
+    current_active: Query<Entity, With<TombstoneActive>>,
+    level_selection: Res<LevelSelection>,
+) {
+    let mut new_active = None;
+    for (eid, ctrl) in &waiting_q {
+        let colls = trigger_colls.get_refs(&ctrl.coll_keys);
+        if colls.iter().any(|coll| coll.tx_kind == TriggerTxKind::GBoy) {
+            commands.entity(eid).insert(TombstoneReached);
+            new_active = Some(eid);
+        }
+    }
+    if let Some(new_eid) = new_active {
+        for old_active in &current_active {
+            commands.entity(old_active).remove::<TombstoneActive>();
+        }
+        commands.entity(new_eid).insert(TombstoneActive {
+            level_selection: level_selection.clone(),
+        });
+    }
 }
 
 pub(super) fn register_spawn(app: &mut App) {
     app.register_ldtk_entity_for_layer::<TombstoneHereBundle>("Entities", "Tombstone");
     app.add_systems(PreUpdate, tombstone_spawn.run_if(no_gboy_exists));
     app.add_systems(Update, materialize_tombstones);
+    app.add_systems(Update, reach_and_activate_tombstones.after(PhysicsSet));
 }
