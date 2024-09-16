@@ -18,7 +18,6 @@ impl HitboxColorable for StaticTxKind {
         }
     }
 }
-
 impl HitboxColorable for TriggerRxKind {
     fn to_color(&self) -> Color {
         tailwind::GREEN_200.into()
@@ -35,6 +34,8 @@ fn draw_hitboxes(
     pos_q: Query<&IPos>,
     static_rxs: Query<&StaticRxComp>,
     static_txs: Query<&StaticTxComp>,
+    trigger_rxs: Query<&TriggerRxComp>,
+    trigger_txs: Query<&TriggerTxComp>,
 ) {
     macro_rules! handle_comp {
         ($comp:expr) => {
@@ -50,6 +51,8 @@ fn draw_hitboxes(
     }
     handle_comp!(static_rxs);
     handle_comp!(static_txs);
+    handle_comp!(trigger_rxs);
+    handle_comp!(trigger_txs);
 }
 
 pub(super) fn register_draw_hitboxes(app: &mut App) {

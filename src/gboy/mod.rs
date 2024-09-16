@@ -14,6 +14,8 @@ struct GBoyBundle {
     anim: AnimMan<GBoyAnim>,
     static_rx: StaticRx,
     static_rx_touches: StaticRxTouches,
+    trigger_tx: TriggerTx,
+    trigger_rx: TriggerRx,
     pos: Pos,
     dyno: Dyno,
     gravity: Gravity,
@@ -22,15 +24,15 @@ struct GBoyBundle {
 }
 impl GBoyBundle {
     fn new(pos: Pos) -> Self {
+        let hbox = Hbox::new().with_size(9, 12).with_offset(0.0, -1.0);
         Self {
             name: Name::new("gboy"),
             marker: default(),
             anim: AnimMan::new(),
-            static_rx: StaticRx::single(
-                StaticRxKind::Default,
-                Hbox::new().with_offset(0.0, -1.0).with_size(9, 12),
-            ),
+            static_rx: StaticRx::single(StaticRxKind::Default, hbox.clone()),
             static_rx_touches: default(),
+            trigger_tx: TriggerTx::single(TriggerTxKind::GBoy, hbox.clone()),
+            trigger_rx: TriggerRx::single(TriggerRxKind::GBoy, hbox.clone()),
             pos,
             dyno: default(),
             gravity: default(),

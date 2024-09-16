@@ -167,6 +167,10 @@ fn resolve_collisions(
     for my_trx_comp in my_trx_comps {
         let my_thbox = my_trx_comp.hbox.translated(my_pos.x, my_pos.y);
         for other_ttx_comp in ttx_comps {
+            if other_ttx_comp.ctrl == my_eid {
+                // Don't collide with ourselves, stupid
+                continue;
+            }
             let other_thbox = translate_other!(other_ttx_comp);
             if my_thbox.overlaps_with(&other_thbox) {
                 // TRIGGER COLLISION HERE
@@ -220,7 +224,6 @@ fn move_interesting_dynos(
     ents: Query<
         Entity,
         (
-            With<Dyno>,
             With<Pos>,
             Without<StaticTxCtrl>,
             Or<(With<StaticRxCtrl>, With<TriggerRxCtrl>)>,
@@ -233,15 +236,10 @@ fn move_interesting_dynos(
     let mut trigger_coll_counter: CollKey = 0;
 
     // First move static rxs
-    // for (eid, srx_ctrl, trx_ctrl, ttx_ctrl) in &ents {
     for eid in &ents {
         // Get the data
         let mut scratch_pos = pos_q.get(eid).expect("No pos on interesting ent").clone();
-        let mut scratch_vel = dyno_q
-            .get(eid)
-            .expect("No dyno on static interesting ent")
-            .vel
-            .clone();
+        let mut scratch_vel = dyno_q.get(eid).unwrap_or(&Dyno::default()).vel.clone();
         macro_rules! get_comps {
             ($ctrl:expr, $comp_query:expr) => {{
                 $ctrl
@@ -256,7 +254,7 @@ fn move_interesting_dynos(
             }};
         }
         let srx_ctrl = srx_ctrls.get(eid).ok();
-        let trx_ctrl = srx_ctrls.get(eid).ok();
+        let trx_ctrl = trx_ctrls.get(eid).ok();
         let my_srx_comps = get_comps!(srx_ctrl, srx_comps);
         let my_trx_comps = get_comps!(trx_ctrl, trx_comps);
         // Inch
@@ -309,9 +307,10 @@ fn move_interesting_dynos(
         // ^read: celeste does this
         // Set the data
         let mut set_pos = pos_q.get_mut(eid).expect("No pos on interesting ent");
-        let mut set_dyno = dyno_q.get_mut(eid).expect("No dyno on interesting ent");
         *set_pos = scratch_pos;
-        set_dyno.vel = scratch_vel;
+        if let Ok(mut set_dyno) = dyno_q.get_mut(eid) {
+            set_dyno.vel = scratch_vel;
+        }
     }
 }
 

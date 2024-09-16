@@ -6,13 +6,12 @@ use super::physics_maint::{impl_physics_comp, PhysicsComp, PhysicsComps, Physics
 
 #[derive(Clone, Copy, Debug, Reflect)]
 pub enum TriggerTxKind {
-    /// Standard solid thing. Stops stuff
-    Solid,
+    GBoy,
 }
 #[derive(Clone, Copy, Debug, Reflect)]
 pub enum TriggerRxKind {
-    /// Pushes the rx ctrl out of tx comps, sets vel to zero along plane of intersection
-    Default,
+    GBoy,
+    Tombstone,
 }
 
 // PLUMBING

@@ -31,6 +31,9 @@ impl Pos {
     pub fn to_spatial(&self, zix: f32) -> SpatialBundle {
         SpatialBundle::from_transform(Transform::from_translation(self.as_vec2().extend(zix)))
     }
+    pub fn translated(&self, offset: Vec2) -> Self {
+        Self::new(self.x + offset.x, self.y + offset.y)
+    }
 }
 
 #[derive(Component, Clone, Debug, Reflect)]
