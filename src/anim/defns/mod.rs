@@ -22,5 +22,6 @@ impl Plugin for AnimDefnsPlugin {
         register_anim::<SmokeDown>(app);
         register_anim::<SmokeCirc>(app);
         register_anim::<FadeAnim>(app);
+        register_anim::<RainAnim>(app);
     }
 }

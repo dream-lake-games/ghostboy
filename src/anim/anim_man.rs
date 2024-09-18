@@ -13,6 +13,7 @@ pub struct AnimBodyData {
     pub offset: Vec2,
     pub zix: f32,
     pub scale: IVec2,
+    pub reps: IVec2,
     pub render_layers: RenderLayers,
 }
 impl AnimBodyData {
@@ -193,7 +194,7 @@ impl<StateMachine: AnimStateMachine> AnimBodyDataBundle<StateMachine> {
                 data.length,
                 flip_x,
                 flip_y,
-                IVec2::ONE,
+                data.reps,
             )),
             spatial: SpatialBundle::from_transform(Transform {
                 translation: data.offset.extend(data.zix),

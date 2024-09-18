@@ -7,7 +7,11 @@ use bevy::render::{
     texture::BevyDefault,
     view::RenderLayers,
 };
+use bevy::sprite::{Material2dPlugin, Mesh2dHandle};
 use bevy::window::WindowResized;
+use shade_remap_mat::{color_as_vec4, ShadeRemapMat};
+
+mod shade_remap_mat;
 
 pub trait CameraLayer {
     const _RENDER_LAYER: usize;
@@ -87,6 +91,12 @@ const BG_IMAGE: Handle<Image> = Handle::weak_from_u128(84562364042238462870);
 const MAIN_IMAGE: Handle<Image> = Handle::weak_from_u128(64462261242435462111);
 const FG_IMAGE: Handle<Image> = Handle::weak_from_u128(53466206864860343678);
 const MENU_IMAGE: Handle<Image> = Handle::weak_from_u128(36467206864860383190);
+const SHADE_REMAP_IMAGE: Handle<Image> = Handle::weak_from_u128(84732874238929384748);
+
+#[derive(Resource, Clone, Debug, Reflect, Default)]
+pub struct ShadeRemaps {
+    pub map: QColorMap,
+}
 
 #[derive(Debug, Resource)]
 struct CameraTargets {
@@ -95,6 +105,7 @@ struct CameraTargets {
     main_target: Handle<Image>,
     fg_target: Handle<Image>,
     menu_target: Handle<Image>,
+    shade_remap_target: Handle<Image>,
 }
 impl Default for CameraTargets {
     fn default() -> Self {
@@ -104,6 +115,7 @@ impl Default for CameraTargets {
             main_target: default(),
             fg_target: default(),
             menu_target: default(),
+            shade_remap_target: default(),
         }
     }
 }
@@ -145,6 +157,7 @@ impl CameraTargets {
         self.main_target = make_layer_image!("main_target", MAIN_IMAGE);
         self.fg_target = make_layer_image!("fg_target", FG_IMAGE);
         self.menu_target = make_layer_image!("menu_target", MENU_IMAGE);
+        self.shade_remap_target = make_layer_image!("shade_remap_target", SHADE_REMAP_IMAGE);
     }
 }
 
@@ -153,9 +166,12 @@ fn setup_layer_materials(
     mut commands: Commands,
     mut camera_targets: ResMut<CameraTargets>,
     mut images: ResMut<Assets<Image>>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut shade_remap_mats: ResMut<Assets<ShadeRemapMat>>,
 ) {
     camera_targets.initialize(&mut images);
-    let combined_layer = RenderLayers::from_layers(&[30]);
+    let actual_stuff_layer = RenderLayers::from_layers(&[29]);
+    let shade_remap_layer = RenderLayers::from_layers(&[30]);
 
     macro_rules! setup_layer {
         ($name:literal, $image:expr, $zix:literal) => {
@@ -167,8 +183,8 @@ fn setup_layer_materials(
                         texture: $image,
                         ..default()
                     },
-                    ResizeImage,
-                    combined_layer.clone(),
+                    // ResizeImage,
+                    actual_stuff_layer.clone(),
                 ))
                 .set_parent(root.eid());
         };
@@ -186,12 +202,49 @@ fn setup_layer_materials(
                 camera: Camera {
                     order: 6,
                     clear_color: ClearColorConfig::Custom(COLOR_NONE),
+                    target: RenderTarget::Image(SHADE_REMAP_IMAGE),
                     ..default()
                 },
                 ..default()
             },
             InheritedVisibility::VISIBLE,
-            combined_layer,
+            actual_stuff_layer,
+        ))
+        .set_parent(root.eid());
+
+    // This is the quad with the shade remaps
+    let mesh = Mesh::from(Rectangle::new(SCREEN_WIDTH_f32, SCREEN_HEIGHT_f32));
+    let mesh_2d: Mesh2dHandle = meshes.add(mesh).into();
+    let mat = ShadeRemapMat::new(SHADE_REMAP_IMAGE, COLOR_1, COLOR_2, COLOR_3, COLOR_4);
+    commands
+        .spawn((
+            Name::new("shade_remaped"),
+            // SpriteBundle {
+            //     texture: SHADE_REMAP_IMAGE,
+            //     ..default()
+            // },
+            mesh_2d,
+            shade_remap_mats.add(mat),
+            SpatialBundle::default(),
+            ResizeImage,
+            shade_remap_layer.clone(),
+        ))
+        .set_parent(root.eid());
+
+    // This is currently the final camera
+    commands
+        .spawn((
+            Name::new("final_camera"),
+            Camera2dBundle {
+                camera: Camera {
+                    order: 7,
+                    clear_color: ClearColorConfig::Custom(COLOR_NONE),
+                    ..default()
+                },
+                ..default()
+            },
+            InheritedVisibility::VISIBLE,
+            shade_remap_layer,
         ))
         .set_parent(root.eid());
 }
@@ -294,6 +347,22 @@ fn resize_canvases(
     }
 }
 
+fn update_shade_remaps(
+    remap_res: Res<ShadeRemaps>,
+    hands: Query<&Handle<ShadeRemapMat>>,
+    mut mats: ResMut<Assets<ShadeRemapMat>>,
+) {
+    for hand in &hands {
+        let Some(mat) = mats.get_mut(hand.id()) else {
+            continue;
+        };
+        mat.color1 = color_as_vec4(remap_res.map.get(QColor::Color1).to_actual_color());
+        mat.color2 = color_as_vec4(remap_res.map.get(QColor::Color2).to_actual_color());
+        mat.color3 = color_as_vec4(remap_res.map.get(QColor::Color3).to_actual_color());
+        mat.color4 = color_as_vec4(remap_res.map.get(QColor::Color4).to_actual_color());
+    }
+}
+
 #[derive(Default)]
 pub struct LayerPlugin {
     screen_size: UVec2,
@@ -319,12 +388,14 @@ impl Plugin for LayerPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(self.layer_clear_colors.clone());
         app.insert_resource(self.layer_growth.clone());
+        app.insert_resource(ShadeRemaps { map: default() });
         let cam_targets = CameraTargets {
             screen_size: self.screen_size,
             ..default()
         };
         app.insert_resource(cam_targets);
         app.insert_resource(OverScreenMult(1.0));
+        app.add_plugins(Material2dPlugin::<shade_remap_mat::ShadeRemapMat>::default());
 
         app.add_systems(
             Startup,
@@ -332,6 +403,6 @@ impl Plugin for LayerPlugin {
                 .chain()
                 .after(RootInit),
         );
-        app.add_systems(Update, resize_canvases);
+        app.add_systems(Update, (resize_canvases, update_shade_remaps));
     }
 }

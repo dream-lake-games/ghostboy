@@ -47,9 +47,15 @@ impl Component for Dashing {
             world.commands().entity(eid).remove::<CanDash>();
             let pos = world.get::<Pos>(eid).unwrap().clone();
             world.commands().trigger(DashJuiceEvent { pos });
+            let mut remap = world.resource_mut::<ShadeRemaps>();
+            remap.map.set(QColor::Color2, QColor::Color1);
+            remap.map.set(QColor::Color3, QColor::Color2);
+            remap.map.set(QColor::Color4, QColor::Color3);
         });
         hooks.on_remove(|mut world, eid, _| {
             world.commands().entity(eid).try_insert(Gravity::default());
+            let mut remap = world.resource_mut::<ShadeRemaps>();
+            *remap = default();
         });
     }
 }

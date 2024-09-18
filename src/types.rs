@@ -107,3 +107,48 @@ impl CardDir {
         }
     }
 }
+
+#[derive(Clone, Copy, Debug, Reflect, std::hash::Hash, PartialEq, Eq)]
+pub enum QColor {
+    Color1,
+    Color2,
+    Color3,
+    Color4,
+}
+impl QColor {
+    pub fn to_actual_color(&self) -> Color {
+        match self {
+            Self::Color1 => COLOR_1,
+            Self::Color2 => COLOR_2,
+            Self::Color3 => COLOR_3,
+            Self::Color4 => COLOR_4,
+        }
+    }
+}
+
+#[derive(Clone, Debug, Reflect)]
+pub struct QColorMap {
+    map: HashMap<QColor, QColor>,
+}
+impl Default for QColorMap {
+    fn default() -> Self {
+        let mut map = HashMap::new();
+        map.insert(QColor::Color1, QColor::Color1);
+        map.insert(QColor::Color2, QColor::Color2);
+        map.insert(QColor::Color3, QColor::Color3);
+        map.insert(QColor::Color4, QColor::Color4);
+        Self { map }
+    }
+}
+impl QColorMap {
+    pub fn get(&self, base: QColor) -> QColor {
+        self.map.get(&base).unwrap().clone()
+    }
+    pub fn set(&mut self, base: QColor, to: QColor) {
+        self.map.insert(base, to);
+    }
+    pub fn with(mut self, base: QColor, to: QColor) -> Self {
+        self.map.insert(base, to);
+        self
+    }
+}

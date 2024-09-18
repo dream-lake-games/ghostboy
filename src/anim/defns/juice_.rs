@@ -139,3 +139,25 @@ defn_animation!(
         },
     ],
 );
+
+defn_animation!(
+    RainAnim,
+    bodies: [
+        steady: {
+            path: "environment/rain.png",
+            size: (16, 16),
+            length: 32,
+            fps: 160.0,
+            // Don't overthink. This works.
+            scale: (1000, 1000),
+            reps: (1000, 1000),
+        }
+    ],
+    states: [
+        Steady {
+            parts: [
+                steady,
+            ],
+        },
+    ],
+);

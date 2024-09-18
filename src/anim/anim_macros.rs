@@ -23,6 +23,9 @@ macro_rules! defn_animation {
                         scale: ($scale_w:expr, $scale_h:expr),
                     )?
                     $(
+                        reps: ($reps_x:expr, $reps_y:expr),
+                    )?
+                    $(
                         render_layers: $render_layers:expr,
                     )?
                 } $(,)?
@@ -78,6 +81,8 @@ macro_rules! defn_animation {
                                 #[allow(unused, unused_mut)]
                                 let mut scale = IVec2::ONE;
                                 #[allow(unused, unused_mut)]
+                                let mut reps = IVec2::ONE;
+                                #[allow(unused, unused_mut)]
                                 let mut render_layers = MainLayer::render_layers();
 
                                 $(
@@ -96,6 +101,9 @@ macro_rules! defn_animation {
                                     scale = IVec2::new($scale_w, $scale_h);
                                 )?
                                 $(
+                                    reps = IVec2::new($reps_x, $reps_y);
+                                )?
+                                $(
                                     render_layers = $render_layers;
                                 )?
 
@@ -107,6 +115,7 @@ macro_rules! defn_animation {
                                     offset,
                                     zix,
                                     scale,
+                                    reps,
                                     render_layers,
                                 }
                             }
