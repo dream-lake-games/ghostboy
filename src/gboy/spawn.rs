@@ -5,7 +5,7 @@ struct Tombstone {
     iid: String,
 }
 #[derive(Clone, Debug)]
-struct TombstoneActive {
+pub struct TombstoneActive {
     level_selection: LevelSelection,
 }
 impl Component for TombstoneActive {
@@ -110,21 +110,6 @@ impl TombstoneBundle {
     }
 }
 
-fn tombstone_spawn(
-    active: Query<(&Pos, &TombstoneActive)>,
-    mut commands: Commands,
-    root: Res<LevelRoot>,
-    mut level_selection: ResMut<LevelSelection>,
-) {
-    let Ok((pos, active)) = active.get_single() else {
-        return;
-    };
-    *level_selection = active.level_selection.clone();
-    commands
-        .spawn(super::GBoyBundle::new(pos.clone()))
-        .set_parent(root.eid());
-}
-
 fn reach_and_activate_tombstones(
     trigger_colls: Res<TriggerColls>,
     waiting_q: Query<(Entity, &TriggerRxCtrl), (With<Tombstone>, Without<TombstoneActive>)>,
@@ -150,9 +135,43 @@ fn reach_and_activate_tombstones(
     }
 }
 
+fn tombstone_spawn(
+    active: Query<(&Pos, &TombstoneActive)>,
+    mut commands: Commands,
+    root: Res<LevelRoot>,
+    mut level_selection: ResMut<LevelSelection>,
+    lingering: Query<Entity, With<GBoy>>,
+) {
+    let Ok((pos, active)) = active.get_single() else {
+        return;
+    };
+    *level_selection = active.level_selection.clone();
+    for eid in &lingering {
+        commands.entity(eid).despawn_recursive();
+    }
+    commands
+        .spawn(super::GBoyBundle::new(pos.clone()))
+        .set_parent(root.eid());
+}
+
+fn finish_spawning(gboy: Query<&AnimMan<GBoyAnim>>, mut meta_state: ResMut<NextState<MetaState>>) {
+    let Ok(anim) = gboy.get_single() else {
+        return;
+    };
+    // TODO: Make a spawning animation
+    if anim.get_state() == GBoyAnim::Stand {
+        meta_state.set(LevelState::Playing.to_meta_state());
+    }
+}
+
 pub(super) fn register_spawn(app: &mut App) {
     app.register_ldtk_entity_for_layer::<TombstoneHereBundle>("Entities", "Tombstone");
-    app.add_systems(PreUpdate, tombstone_spawn.run_if(no_gboy_exists));
+    app.add_systems(OnEnter(LevelStateKind::Spawning), tombstone_spawn);
+    app.add_systems(
+        Update,
+        finish_spawning.run_if(in_state(LevelState::Spawning)),
+    );
+
     app.add_systems(Update, materialize_tombstones);
     app.add_systems(Update, reach_and_activate_tombstones.after(PhysicsSet));
 }

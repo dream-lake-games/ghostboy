@@ -1,8 +1,12 @@
 use crate::prelude::*;
 
 mod control;
+pub mod death;
 mod gboy_fsm;
-mod spawn;
+pub mod spawn;
+
+pub use death::GBoyDying;
+pub use spawn::TombstoneActive;
 
 #[derive(Component, Clone, Debug, Reflect, Default)]
 pub struct GBoy;
@@ -66,6 +70,7 @@ impl Plugin for GBoyPlugin {
 
         control::register_control(app);
         gboy_fsm::register_gboy_fsm(app);
+        death::register_death(app);
         spawn::register_spawn(app);
     }
 }

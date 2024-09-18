@@ -1,7 +1,7 @@
 pub mod juice_;
 pub use juice_::*;
-pub mod gboy;
-pub use gboy::*;
+pub mod gboy_;
+pub use gboy_::*;
 pub mod skelly_;
 pub use skelly_::*;
 pub mod tombstone_;
@@ -15,6 +15,7 @@ impl Plugin for AnimDefnsPlugin {
     fn build(&self, app: &mut App) {
         register_anim::<GBoyAnim>(app);
         register_anim::<SkellyAnim>(app);
+        register_anim::<ArrowAnim>(app);
         register_anim::<TombstoneAnim>(app);
         // juice
         register_anim::<DashFadeAnim>(app);

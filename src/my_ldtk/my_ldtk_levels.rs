@@ -26,7 +26,7 @@ fn change_current_level(
     mut commands: Commands,
 ) {
     // Do nothing cases
-    let Ok((gboy_eid, mut gboy_pos, mut dyno)) = gboy.get_single_mut() else {
+    let Ok((gboy_eid, mut gboy_pos, mut _dyno)) = gboy.get_single_mut() else {
         return;
     };
     let gboy_vec2 = gboy_pos.as_vec2();
@@ -72,12 +72,11 @@ fn change_current_level(
             });
         }
         None => {
-            // gboy_pos.x = gboy_pos.x.max(current_bounds.min.x);
-            // gboy_pos.x = gboy_pos.x.min(current_bounds.max.x);
-            // gboy_pos.y = gboy_pos.y.max(current_bounds.min.y);
-            // gboy_pos.y = gboy_pos.y.min(current_bounds.max.y);
-            // dyno.vel = default();
-            commands.entity(gboy_eid).despawn_recursive();
+            gboy_pos.x = gboy_pos.x.max(current_bounds.min.x);
+            gboy_pos.x = gboy_pos.x.min(current_bounds.max.x);
+            if gboy_pos.y < current_bounds.min.y {
+                commands.entity(gboy_eid).insert(GBoyDying);
+            }
         }
     }
 }
@@ -123,6 +122,38 @@ fn update_current_level_bounds(
     helpers.bounds = new_bounds;
 }
 
+fn start_load_level(
+    mut commands: Commands,
+    level_state: Res<State<LevelState>>,
+    existing: Query<Entity, With<Handle<LdtkProject>>>,
+    asset_server: Res<AssetServer>,
+    mut level_selection: ResMut<LevelSelection>,
+) {
+    let LevelState::Loading(loading_state) = level_state.get() else {
+        panic!("bad load_level1");
+    };
+    for eid in &existing {
+        commands.entity(eid).despawn_recursive();
+    }
+    commands.spawn((
+        Name::new(format!("ldtk_world_{}", loading_state.world_path)),
+        LdtkWorldBundle {
+            ldtk_handle: asset_server.load("ldtk/world.ldtk"),
+            ..default()
+        },
+    ));
+    *level_selection = LevelSelection::iid(loading_state.level_iid.to_string());
+}
+
+fn watch_stop_load_level(
+    active_tombstone: Query<Entity, With<TombstoneActive>>,
+    mut meta_state: ResMut<NextState<MetaState>>,
+) {
+    if active_tombstone.iter().count() == 1 {
+        meta_state.set(LevelState::Spawning.to_meta_state());
+    }
+}
+
 pub(super) fn register_my_ldtk_levels(app: &mut App) {
     reg_types!(app, CurrentLevelHelpers);
 
@@ -130,6 +161,12 @@ pub(super) fn register_my_ldtk_levels(app: &mut App) {
     app.add_systems(
         PreUpdate,
         (change_current_level, update_current_level_bounds).chain(),
+    );
+
+    app.add_systems(OnEnter(LevelStateKind::Loading), start_load_level);
+    app.add_systems(
+        Update,
+        watch_stop_load_level.run_if(in_state(LevelStateKind::Loading)),
     );
 
     app.observe(handle_start_switch_to_level);

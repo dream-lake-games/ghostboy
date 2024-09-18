@@ -49,7 +49,7 @@ impl Component for Dashing {
             world.commands().trigger(DashJuiceEvent { pos });
         });
         hooks.on_remove(|mut world, eid, _| {
-            world.commands().entity(eid).insert(Gravity::default());
+            world.commands().entity(eid).try_insert(Gravity::default());
         });
     }
 }
@@ -148,13 +148,27 @@ fn limit_speed(
 /// Replenish abilility to dash
 fn replenish_gboy_dash(
     mut commands: Commands,
-    mut gboy_q: Query<(Entity, &StaticRxTouches), (With<GBoy>, Without<Dashing>, Without<CanDash>)>,
+    mut gboy_q: Query<
+        (Entity, &StaticRxTouches, &TriggerRxCtrl, Option<&Dashing>),
+        (With<GBoy>, Without<CanDash>),
+    >,
+    colls: Res<TriggerColls>,
+    valid_arrows: Query<Entity, (With<Arrow>, Without<ArrowDeleted>)>,
 ) {
-    let Ok((eid, touches)) = gboy_q.get_single_mut() else {
+    let Ok((eid, touches, trigger_rx, maybe_dashing)) = gboy_q.get_single_mut() else {
         return;
     };
-    if touches[Dir4::Down] {
+    if touches[Dir4::Down] && !maybe_dashing.is_some() {
         commands.entity(eid).insert(CanDash);
+        return;
+    }
+    let my_colls = colls.get_refs(&trigger_rx.coll_keys);
+    for coll in my_colls {
+        if coll.tx_kind == TriggerTxKind::Arrow && valid_arrows.contains(coll.tx_ctrl) {
+            commands.entity(eid).insert(CanDash);
+            commands.entity(coll.tx_ctrl).insert(ArrowDeleted);
+            break;
+        }
     }
 }
 
@@ -258,8 +272,8 @@ pub(super) fn register_control(app: &mut App) {
         Update,
         (
             control_gboy_ver,
-            replenish_gboy_dash,
             start_gboy_dash,
+            replenish_gboy_dash,
             end_gboy_dash,
         )
             .chain()

@@ -2,15 +2,7 @@ use crate::prelude::*;
 
 mod draw_hitboxes;
 
-fn debug_startup(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    mut gizmo_config_store: ResMut<GizmoConfigStore>,
-) {
-    commands.spawn(LdtkWorldBundle {
-        ldtk_handle: asset_server.load("ldtk/world.ldtk"),
-        ..default()
-    });
+fn debug_startup(mut gizmo_config_store: ResMut<GizmoConfigStore>) {
     // Gizmo config
     let (config, _) = gizmo_config_store.config_mut::<DefaultGizmoConfigGroup>();
     config.line_width = 2.0;

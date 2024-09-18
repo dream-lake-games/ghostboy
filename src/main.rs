@@ -13,12 +13,13 @@ pub mod math;
 pub mod my_ldtk;
 pub mod physics;
 pub mod roots;
+pub mod state;
 pub mod types;
 
 pub mod prelude {
     pub use super::{
         anim::*, camera::*, consts::*, debug::*, enemies::*, environment::*, gboy::*, input::*,
-        juice::*, layer::*, macros::*, my_ldtk::*, physics::*, roots::*, types::*,
+        juice::*, layer::*, macros::*, my_ldtk::*, physics::*, roots::*, state::*, types::*,
     };
     pub use bevy::{
         color::palettes::tailwind,
@@ -47,7 +48,7 @@ fn get_window_plugin() -> WindowPlugin {
             primary_window: Some(Window {
                 resizable: true,
                 title: "GB TEMPLATE".to_string(),
-                resolution: WindowResolution::new(SCREEN_WIDTH_f32, SCREEN_HEIGHT_f32),
+                resolution: WindowResolution::new(SCREEN_WIDTH_f32 * 3.0, SCREEN_HEIGHT_f32 * 3.0),
                 ..default()
             }),
             ..default()
@@ -94,7 +95,8 @@ fn main() {
         .add_plugins(LayerPlugin::new(SCREEN_UVEC))
         .add_plugins(MyLdtkPlugin)
         .add_plugins(PhysicsPlugin)
-        .add_plugins(RootPlugin);
+        .add_plugins(RootPlugin)
+        .add_plugins(StatePlugin);
 
     // Have fun!
     app.run();

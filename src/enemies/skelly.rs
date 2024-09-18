@@ -37,7 +37,9 @@ impl LdtkEntity for SkellySpawnPointBundle {
 }
 
 #[derive(Component, Clone, Debug, Reflect)]
-pub struct Skelly;
+pub struct Skelly {
+    can_fire: bool,
+}
 
 #[derive(Bundle)]
 struct SkellyBundle {
@@ -54,7 +56,7 @@ impl SkellyBundle {
     fn from_spawn_point(sp: &SkellySpawnPoint, pos: Pos) -> Self {
         Self {
             name: Name::new("skelly"),
-            skelly: Skelly,
+            skelly: Skelly { can_fire: true },
             anim: AnimMan::new(),
             facing: sp.facing,
             static_rx: StaticRx::single(
@@ -86,8 +88,32 @@ fn crush_spawns(
     }
 }
 
+fn fire_arrows(
+    mut commands: Commands,
+    mut skelly: Query<(
+        &Pos,
+        &mut Skelly,
+        &AnimMan<SkellyAnim>,
+        &AnimBodyProgress<SkellyAnim>,
+    )>,
+) {
+    for (pos, mut skelly, anim_man, anim_progress) in &mut skelly {
+        if anim_man.get_state() == SkellyAnim::Fire
+            && anim_progress.get_body_ix(AnimBody_SkellyAnim::fire) == Some(11)
+        {
+            if skelly.can_fire {
+                skelly.can_fire = false;
+                commands.spawn(ArrowBundle::new(pos.clone(), CardDir::NE));
+            }
+        } else {
+            skelly.can_fire = true;
+        }
+    }
+}
+
 pub(super) fn register_skelly(app: &mut App) {
     app.register_ldtk_entity_for_layer::<SkellySpawnPointBundle>("Entities", "SkellySpawn");
 
     app.add_systems(PreUpdate, crush_spawns);
+    app.add_systems(Update, (fire_arrows).in_set(EnemySet));
 }

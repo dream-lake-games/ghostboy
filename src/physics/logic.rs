@@ -21,18 +21,10 @@ fn invariants(
     debug_assert!(static_rx_n_tx.is_empty());
 }
 
-/// Moves dynos that have no statics or triggers
+/// Moves dynos that have no receivers
 fn move_uninteresting_dynos(
     bullet_time: Res<BulletTime>,
-    mut ents: Query<
-        (&Dyno, &mut Pos),
-        (
-            Without<StaticRxCtrl>,
-            Without<StaticTxCtrl>,
-            Without<TriggerRxCtrl>,
-            Without<TriggerTxCtrl>,
-        ),
-    >,
+    mut ents: Query<(&Dyno, &mut Pos), (Without<StaticRxCtrl>, Without<TriggerRxCtrl>)>,
 ) {
     for (dyno, mut pos) in &mut ents {
         *pos += dyno.vel * bullet_time.delta_seconds();
