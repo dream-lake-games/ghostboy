@@ -35,18 +35,23 @@ fn watch_for_death(
 fn handle_death(
     _trigger: Trigger<DoGBoyDeath>,
     mut meta_state: ResMut<NextState<MetaState>>,
-    mut boys: Query<(Entity, &mut AnimMan<GBoyAnim>), With<GBoy>>,
+    mut gboy: Query<(Entity, &mut AnimMan<GBoyAnim>, &Pos), With<GBoy>>,
     mut commands: Commands,
+    mut cam_mode: ResMut<DynamicCameraMode>,
+    mut fade: ResMut<Fade>,
 ) {
     meta_state.set(LevelState::Dying.to_meta_state());
-    for (eid, mut anim) in &mut boys {
-        anim.set_state(GBoyAnim::Explode);
-        anim.set_flip_x(thread_rng().gen());
-        anim.set_flip_y(thread_rng().gen());
-        commands.entity(eid).remove::<Dyno>();
-        commands.entity(eid).remove::<TriggerTxCtrl>();
-        commands.entity(eid).remove::<TriggerRxCtrl>();
-    }
+    let Ok((eid, mut anim, pos)) = gboy.get_single_mut() else {
+        return;
+    };
+    anim.set_state(GBoyAnim::Explode);
+    anim.set_flip_x(thread_rng().gen());
+    anim.set_flip_y(thread_rng().gen());
+    commands.entity(eid).remove::<Dyno>();
+    commands.entity(eid).remove::<TriggerTxCtrl>();
+    commands.entity(eid).remove::<TriggerRxCtrl>();
+    *cam_mode = DynamicCameraMode::Hanging;
+    fade.out(pos.clone());
 }
 
 fn update_death(mut meta_state: ResMut<NextState<MetaState>>, boys: Query<Entity, With<GBoy>>) {

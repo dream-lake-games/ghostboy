@@ -26,8 +26,8 @@ impl ComputedStates for MetaStateKind {
 
     fn compute(sources: Self::SourceStates) -> Option<Self> {
         match sources {
-            MetaState::Level(_) => Some(Self::Level),
             MetaState::Menu(_) => Some(Self::Menu),
+            MetaState::Level(_) => Some(Self::Level),
         }
     }
 }
@@ -63,12 +63,14 @@ impl ComputedStates for PhysicsState {
         match sources {
             (MetaState::Level(LevelState::Spawning), PauseState::Unpaused) => Some(Self::Active),
             (MetaState::Level(LevelState::Playing), PauseState::Unpaused) => Some(Self::Active),
+            (MetaState::Level(LevelState::Dying), PauseState::Unpaused) => Some(Self::Active),
             _ => Some(Self::Inactive),
         }
     }
 }
 
 pub(super) fn register_computed(app: &mut App) {
+    app.add_computed_state::<MetaStateKind>();
     app.add_computed_state::<MenuState>();
     app.add_computed_state::<LevelState>();
     app.add_computed_state::<LevelStateKind>();

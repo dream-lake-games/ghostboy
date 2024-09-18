@@ -17,7 +17,7 @@ impl Default for CameraMovementConsts {
 }
 
 #[derive(Component, Clone, Debug, Reflect)]
-struct DynamicCamera;
+pub struct DynamicCamera;
 
 /// This is for the layer cameras that need to "follow" the dynamic camera. Don't get confused
 #[derive(Component, Clone, Debug, Reflect)]

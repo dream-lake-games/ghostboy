@@ -30,6 +30,12 @@ defn_animation!(
             size: (32, 32),
             length: 5,
             fps: 24.0,
+        },
+        empty: {
+            path: "empty.png",
+            size: (1, 1),
+            length: 1,
+            fps: 4.0,
         }
     ],
     states: [
@@ -56,6 +62,12 @@ defn_animation!(
         Explode: {
             parts: [
                 die,
+            ],
+            next: PostExplodeDelay,
+        },
+        PostExplodeDelay: {
+            parts: [
+                empty,
             ],
             #[despawn]
             next: dummy,

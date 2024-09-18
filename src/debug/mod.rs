@@ -9,14 +9,7 @@ fn debug_startup(mut gizmo_config_store: ResMut<GizmoConfigStore>) {
     config.render_layers = MainLayer::render_layers();
 }
 
-fn debug_update(
-    player_eid: Query<Entity, (With<GBoy>, With<Pos>)>,
-    mut camera_mode: ResMut<DynamicCameraMode>,
-) {
-    if let Ok(eid) = player_eid.get_single() {
-        *camera_mode = DynamicCameraMode::Follow(eid);
-    }
-}
+fn debug_update() {}
 
 /// The set that contains all physics related systems
 #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]

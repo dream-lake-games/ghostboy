@@ -141,6 +141,8 @@ fn tombstone_spawn(
     root: Res<LevelRoot>,
     mut level_selection: ResMut<LevelSelection>,
     lingering: Query<Entity, With<GBoy>>,
+    mut cam_mode: ResMut<DynamicCameraMode>,
+    mut fade: ResMut<Fade>,
 ) {
     let Ok((pos, active)) = active.get_single() else {
         return;
@@ -149,15 +151,20 @@ fn tombstone_spawn(
     for eid in &lingering {
         commands.entity(eid).despawn_recursive();
     }
-    commands
-        .spawn(super::GBoyBundle::new(pos.clone()))
-        .set_parent(root.eid());
+    let adjusted_pos = pos.translated(Vec2::new(0.0, -6.0));
+    let eid = commands
+        .spawn(super::GBoyBundle::new(adjusted_pos))
+        .set_parent(root.eid())
+        .id();
+    *cam_mode = DynamicCameraMode::Follow(eid);
+    fade.in_(adjusted_pos);
 }
 
 fn finish_spawning(gboy: Query<&AnimMan<GBoyAnim>>, mut meta_state: ResMut<NextState<MetaState>>) {
     let Ok(anim) = gboy.get_single() else {
         return;
     };
+
     // TODO: Make a spawning animation
     if anim.get_state() == GBoyAnim::Stand {
         meta_state.set(LevelState::Playing.to_meta_state());
