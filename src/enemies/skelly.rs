@@ -115,5 +115,10 @@ pub(super) fn register_skelly(app: &mut App) {
     app.register_ldtk_entity_for_layer::<SkellySpawnPointBundle>("Entities", "SkellySpawn");
 
     app.add_systems(PreUpdate, crush_spawns);
-    app.add_systems(Update, (fire_arrows).in_set(EnemySet));
+    app.add_systems(
+        Update,
+        (fire_arrows)
+            .in_set(EnemySet)
+            .run_if(in_state(MetaStateKind::Level)),
+    );
 }

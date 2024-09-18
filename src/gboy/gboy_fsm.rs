@@ -38,6 +38,6 @@ pub(super) fn register_gboy_fsm(app: &mut App) {
         Update,
         update_gboy_animation
             .after(PhysicsSet)
-            .run_if(one_gboy_exists),
+            .run_if(in_state(LevelState::Playing)),
     );
 }

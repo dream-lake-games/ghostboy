@@ -360,6 +360,7 @@ pub fn register_anim<StateMachine: AnimStateMachine>(app: &mut App) {
             .chain()
             .in_set(AnimationSet)
             .in_set(ManagersSet)
-            .after(PhysicsSet),
+            .after(PhysicsSet)
+            .run_if(in_state(PauseState::Unpaused)),
     );
 }

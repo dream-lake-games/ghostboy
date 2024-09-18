@@ -16,6 +16,28 @@ macro_rules! impl_core_computed_state {
 impl_core_computed_state!(MenuState, Menu);
 impl_core_computed_state!(LevelState, Level);
 
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Reflect)]
+pub enum MetaStateKind {
+    Menu,
+    Level,
+}
+impl ComputedStates for MetaStateKind {
+    type SourceStates = MetaState;
+
+    fn compute(sources: Self::SourceStates) -> Option<Self> {
+        match sources {
+            MetaState::Level(_) => Some(Self::Level),
+            MetaState::Menu(_) => Some(Self::Menu),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Reflect)]
+pub enum LevelStateKind {
+    Loading,
+    Spawning,
+    Playing,
+}
 impl ComputedStates for LevelStateKind {
     type SourceStates = MetaState;
 
@@ -27,13 +49,6 @@ impl ComputedStates for LevelStateKind {
             _ => None,
         }
     }
-}
-
-#[derive(Debug, Clone, Eq, PartialEq, Hash, Reflect)]
-pub enum LevelStateKind {
-    Loading,
-    Spawning,
-    Playing,
 }
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, Reflect)]

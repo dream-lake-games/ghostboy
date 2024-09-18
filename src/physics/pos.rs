@@ -76,6 +76,7 @@ pub(super) fn register_pos(app: &mut App) {
             .chain()
             .in_set(PhysicsSet)
             .in_set(super::CollSet)
-            .in_set(super::PosSet),
+            .in_set(super::PosSet)
+            .run_if(in_state(PhysicsState::Active)),
     );
 }

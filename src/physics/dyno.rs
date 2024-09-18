@@ -42,6 +42,9 @@ impl Default for Gravity {
 pub(super) fn register_dynos(app: &mut App) {
     app.add_systems(
         Update,
-        update_dyno_facing.in_set(PhysicsSet).after(super::CollSet),
+        update_dyno_facing
+            .in_set(PhysicsSet)
+            .after(super::CollSet)
+            .run_if(in_state(PhysicsState::Active)),
     );
 }

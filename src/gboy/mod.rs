@@ -48,25 +48,19 @@ impl GBoyBundle {
     }
 }
 
-pub fn no_gboy_exists(ents: Query<Entity, With<GBoy>>) -> bool {
-    ents.is_empty()
-}
-
-pub fn one_gboy_exists(ents: Query<Entity, (With<GBoy>, With<Dyno>)>) -> bool {
-    if ents.is_empty() {
-        return false;
-    }
-    if ents.iter().count() > 1 {
-        warn!("Too many gboys, something bad is happening");
-        return false;
-    }
-    true
+pub fn maintain_sanity(gboy: Query<Entity, With<GBoy>>) {
+    assert!(gboy.iter().count() == 1);
 }
 
 pub(super) struct GBoyPlugin;
 impl Plugin for GBoyPlugin {
     fn build(&self, app: &mut App) {
         reg_types!(app, GBoy);
+
+        app.add_systems(
+            Update,
+            maintain_sanity.run_if(in_state(LevelState::Playing)),
+        );
 
         control::register_control(app);
         gboy_fsm::register_gboy_fsm(app);

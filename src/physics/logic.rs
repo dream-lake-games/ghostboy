@@ -356,14 +356,23 @@ pub(super) fn register_logic(app: &mut App) {
             .chain()
             .in_set(PhysicsSet)
             .in_set(super::CollSet)
-            .before(super::PosSet),
+            .before(super::PosSet)
+            .run_if(in_state(PhysicsState::Active)),
     );
 
     app.insert_resource(PhysicsConsts::default());
     debug_resource!(app, PhysicsConsts);
     app.add_systems(
         Update,
-        apply_fake_gravity.in_set(PhysicsSet).after(super::CollSet),
+        apply_fake_gravity
+            .in_set(PhysicsSet)
+            .after(super::CollSet)
+            .run_if(in_state(PhysicsState::Active)),
     );
-    app.add_systems(BulletUpdate, apply_gravity.in_set(PhysicsSet));
+    app.add_systems(
+        BulletUpdate,
+        apply_gravity
+            .in_set(PhysicsSet)
+            .run_if(in_state(PhysicsState::Active)),
+    );
 }

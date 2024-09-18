@@ -173,5 +173,10 @@ pub(super) fn register_spawn(app: &mut App) {
     );
 
     app.add_systems(Update, materialize_tombstones);
-    app.add_systems(Update, reach_and_activate_tombstones.after(PhysicsSet));
+    app.add_systems(
+        Update,
+        reach_and_activate_tombstones
+            .after(PhysicsSet)
+            .run_if(in_state(LevelState::Playing)),
+    );
 }

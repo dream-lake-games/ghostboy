@@ -79,5 +79,11 @@ pub(super) fn delete_arrows(
 }
 
 pub(super) fn register_arrows(app: &mut App) {
-    app.add_systems(Update, delete_arrows.in_set(EnemySet).after(PhysicsSet));
+    app.add_systems(
+        Update,
+        delete_arrows
+            .in_set(EnemySet)
+            .after(PhysicsSet)
+            .run_if(in_state(MetaStateKind::Level)),
+    );
 }
