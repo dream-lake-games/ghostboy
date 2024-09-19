@@ -160,7 +160,7 @@ fn resolve_collisions(
                     (StaticRxKind::Default, StaticTxKind::PassUp) => {
                         if push.y > 0.0
                             && old_perp.y < 0.0
-                            && other_thbox.max_y() + 1.0 > my_thbox.min_y()
+                            && other_thbox.max_y() - 1.1 < my_thbox.min_y()
                         {
                             add_coll_rec();
                             do_push(&mut my_thbox);

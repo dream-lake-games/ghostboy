@@ -2,18 +2,16 @@ use crate::prelude::*;
 
 #[derive(Resource, Clone, Debug, Reflect)]
 pub struct Fade {
-    initial: bool,
+    pub anim: FadeAnim,
     pos: Pos,
     effect: Option<FadeKind>,
 }
 impl Fade {
     pub fn in_(&mut self, pos: Pos) {
-        self.initial = false;
         self.pos = pos;
         self.effect = Some(FadeKind::FadeIn);
     }
     pub fn out(&mut self, pos: Pos) {
-        self.initial = false;
         self.pos = pos;
         self.effect = Some(FadeKind::FadeOut);
     }
@@ -46,7 +44,9 @@ fn startup_fade(mut commands: Commands, root: Res<TransitionRoot>) {
         .spawn(FadeBundle {
             name: Name::new("fade"),
             spatial: SpatialBundle::from_transform(tran), // NOTE: ZIX handled by the root
-            anim: AnimMan::new(),
+            anim: AnimMan::new()
+                .with_state(FadeAnim::Clear)
+                .with_play_while_paused(true),
         })
         .set_parent(root.eid());
 }
@@ -63,14 +63,14 @@ fn update_fade(
         fade.effect = None;
     }
     let diff = fade.pos.as_vec2() - cam_pos.as_vec2();
-    if !fade.initial {
-        tran.translation = diff.extend(tran.translation.z);
-    }
+    let diff = diff.clamp(-SCREEN_VEC / 2.0, SCREEN_VEC / 2.0);
+    tran.translation = diff.extend(tran.translation.z);
+    fade.anim = anim.get_state();
 }
 
 pub(super) fn register_fade(app: &mut App) {
     app.insert_resource(Fade {
-        initial: true,
+        anim: FadeAnim::Clear,
         pos: Pos::new(0.0, 0.0),
         effect: None,
     });

@@ -1,25 +1,21 @@
 <html>
 
 <head>
-
-    <script type="module" nonce="+6WH1xJafQTvuIFT5PXCaw==">
-        import init, * as bindings from './bevy_gb_template-c4ac6e723bae302d.js';
-        const wasm = await init('./bevy_gb_template-c4ac6e723bae302d_bg.wasm');
-
-
-        window.wasmBindings = bindings;
+    
+<script type="module" nonce="8XZC6I7z1mbaVz6g5t14SA==">
+import init, * as bindings from '/bevy_gb_template-4887ac5c31eda71d.js';
+const wasm = await init('/bevy_gb_template-4887ac5c31eda71d_bg.wasm');
 
 
-        dispatchEvent(new CustomEvent("TrunkApplicationStarted", { detail: { wasm } }));
-
-    </script>
+window.wasmBindings = bindings;
 
 
-    <link rel="modulepreload" href="./bevy_gb_template-c4ac6e723bae302d.js" crossorigin=anonymous
-        integrity="sha384-ar7+X0f2kWspWZueOhjBuJeFyRRazUT2fb/iP0YgxtORyBZ8egJuuUBoFUwUoWVF">
-    <link rel="preload" href="./bevy_gb_template-c4ac6e723bae302d_bg.wasm" crossorigin=anonymous
-        integrity="sha384-Lkm34MrTDL9l6ysqYvu4dJS3zhYBwHn5q3CCiDr6f7nsQUqW/SgDd5bP/so3b1LB" as="fetch"
-        type="application/wasm">
-</head>
+dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
+
+</script>
+    
+
+<link rel="modulepreload" href="/bevy_gb_template-4887ac5c31eda71d.js" crossorigin=anonymous integrity="sha384-LKoLOFV07xObdPym+RfAA9JgGx/EbUiz4cR+WqQ1iNPnsndZLi0vkLpQ8S5ItLtw">
+<link rel="preload" href="/bevy_gb_template-4887ac5c31eda71d_bg.wasm" crossorigin=anonymous integrity="sha384-GVbNtAAYYJbisG7GaxM6oW8D/D6pD5eGUbIieseQrvIsr45UxX+sPeOGQ7aUOVM3" as="fetch" type="application/wasm"></head>
 
 </html>

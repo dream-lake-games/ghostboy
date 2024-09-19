@@ -2,6 +2,8 @@ pub mod juice_;
 pub use juice_::*;
 pub mod gboy_;
 pub use gboy_::*;
+pub mod menu_;
+pub use menu_::*;
 pub mod skelly_;
 pub use skelly_::*;
 pub mod tombstone_;
@@ -24,5 +26,6 @@ impl Plugin for AnimDefnsPlugin {
         register_anim::<FadeAnim>(app);
         register_anim::<RainAnim>(app);
         register_anim::<LightningAnim>(app);
+        register_anim::<ButtonAnim>(app);
     }
 }

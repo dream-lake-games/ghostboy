@@ -98,6 +98,7 @@ fn fire_arrows(
         &mut AnimMan<SkellyAnim>,
         &AnimBodyProgress<SkellyAnim>,
     )>,
+    root: Res<LevelRoot>,
 ) {
     for (pos, mut skelly, mut anim, anim_progress) in &mut skelly {
         macro_rules! check_pair {
@@ -114,7 +115,9 @@ fn fire_arrows(
         {
             if skelly.can_fire {
                 skelly.can_fire = false;
-                commands.spawn(ArrowBundle::new(pos.clone(), skelly.card_dir));
+                commands
+                    .spawn(ArrowBundle::new(pos.clone(), skelly.card_dir))
+                    .set_parent(root.eid());
             }
         } else {
             skelly.can_fire = true;

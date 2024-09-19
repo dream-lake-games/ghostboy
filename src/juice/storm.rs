@@ -90,7 +90,7 @@ pub(super) fn register_storm(app: &mut App) {
     app.insert_resource(StormConsts::default());
     debug_resource!(app, StormConsts);
 
-    app.add_systems(OnEnter(MetaStateKind::Level), startup_storm);
+    app.add_systems(Startup, startup_storm);
     app.add_systems(Update, update_lightning);
     app.observe(start_lightning);
 }

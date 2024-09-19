@@ -98,7 +98,10 @@ fn update_current_level_bounds(
     mut helpers: ResMut<CurrentLevelHelpers>,
 ) {
     let mut new_bounds = None;
-    if let Some(ldtk_project) = ldtk_project_assets.get(ldtk_projects.single()) {
+    let Ok(proj) = ldtk_projects.get_single() else {
+        return;
+    };
+    if let Some(ldtk_project) = ldtk_project_assets.get(proj) {
         for (level_iid, level_transform) in levels.iter() {
             if LevelSelection::Iid(level_iid.clone()) != *level_selection {
                 continue;

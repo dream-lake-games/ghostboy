@@ -28,7 +28,7 @@ struct TombstoneReached;
 #[derive(Component, Default)]
 struct TombstoneHere {
     iid: String,
-    is_initial: bool,
+    level_entry: Option<String>,
 }
 #[derive(Bundle)]
 struct TombstoneHereBundle {
@@ -45,15 +45,15 @@ impl LdtkEntity for TombstoneHereBundle {
         _texture_atlases: &mut Assets<TextureAtlasLayout>,
     ) -> Self {
         let fi = entity_instance
-            .get_field_instance("is_initial")
-            .expect("no is_initial on tomb");
-        let FieldValue::Bool(is_initial) = fi.value else {
+            .get_field_instance("level_entry")
+            .expect("no level_entry on tomb");
+        let FieldValue::String(level_entry) = fi.value.clone() else {
             panic!("woop bad tombstone!");
         };
         Self {
             marker: TombstoneHere {
                 iid: entity_instance.iid.clone(),
-                is_initial,
+                level_entry,
             },
             wait: default(),
         }
@@ -67,11 +67,14 @@ fn materialize_tombstones(
     level_selection: Res<LevelSelection>,
     existing: Query<&Tombstone>,
 ) {
+    let LevelSelection::Iid(current_iid) = level_selection.clone() else {
+        panic!("nooooo");
+    };
     for (eid, here, pos) in &query {
         if !existing.iter().any(|tomb| tomb.iid == here.iid) {
             let mut comms = commands.spawn(TombstoneBundle::new(here.iid.clone(), pos.clone()));
             comms.set_parent(root.eid());
-            if here.is_initial {
+            if here.level_entry == Some(current_iid.to_string()) {
                 comms.insert((
                     TombstoneActive {
                         level_selection: level_selection.clone(),
@@ -145,7 +148,7 @@ fn tombstone_spawn(
     mut fade: ResMut<Fade>,
 ) {
     let Ok((pos, active)) = active.get_single() else {
-        return;
+        panic!("yeah this is bad");
     };
     *level_selection = active.level_selection.clone();
     for eid in &lingering {

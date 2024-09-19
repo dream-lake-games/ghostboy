@@ -7,6 +7,7 @@ pub use computed::*;
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, Reflect)]
 pub enum MenuState {
     Title,
+    WorldSelect,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Reflect)]
@@ -83,13 +84,14 @@ pub enum PauseState {
 pub(super) struct StatePlugin;
 impl Plugin for StatePlugin {
     fn build(&self, app: &mut App) {
-        app.insert_state(
-            LevelState::Loading(LevelLoadingState {
-                world_path: "ldtk/world.ldtk".to_string(),
-                level_iid: LevelIid::new("6707e010-4ce0-11ef-8458-1d8de6fabb3d".to_string()),
-            })
-            .to_meta_state(),
-        );
+        app.insert_state(MenuState::Title.to_meta_state());
+        // app.insert_state(
+        //     LevelState::Loading(LevelLoadingState {
+        //         world_path: "ldtk/world.ldtk".to_string(),
+        //         level_iid: LevelIid::new("6707e010-4ce0-11ef-8458-1d8de6fabb3d".to_string()),
+        //     })
+        //     .to_meta_state(),
+        // );
         app.insert_state(PauseState::Unpaused);
         computed::register_computed(app);
     }

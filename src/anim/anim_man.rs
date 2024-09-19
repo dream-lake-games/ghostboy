@@ -67,6 +67,7 @@ pub struct AnimMan<StateMachine: AnimStateMachine> {
     pub hidden: bool,
     pub flip_x: bool,
     pub flip_y: bool,
+    pub play_while_paused: bool,
     // Need to keep handles to loaded assets around so switching doesn't blink
     pub handle_cache: HashMap<StateMachine::BodyType, Handle<Image>>,
 }
@@ -77,6 +78,7 @@ impl<StateMachine: AnimStateMachine> AnimMan<StateMachine> {
             hidden: false,
             flip_x: false,
             flip_y: false,
+            play_while_paused: false,
             handle_cache: default(),
         }
     }
@@ -89,6 +91,8 @@ impl<StateMachine: AnimStateMachine> AnimMan<StateMachine> {
     impl_with!(flip_x, bool);
     impl_get_copy!(flip_y, bool);
     impl_with!(flip_y, bool);
+    impl_get_copy!(play_while_paused, bool);
+    impl_with!(play_while_paused, bool);
 }
 // This mutability hack exists so that `Changed` has good meaning.
 // In bevy, dereferencing a mutable pointer trigggers change. So we want to have a way to make
@@ -282,10 +286,14 @@ fn play_animations<StateMachine: AnimStateMachine>(
     mut bodies: Query<(&mut AnimIndex<StateMachine>, &Handle<AnimMat>, &Parent)>,
     mut mats: ResMut<Assets<AnimMat>>,
     bullet_time: Res<BulletTime>,
+    pause_state: Res<State<PauseState>>,
 ) {
     for (mut index, hand, parent) in &mut bodies {
         let (manager_eid, mut manager, mut progress, mut visibility) =
             managers.get_mut(parent.get()).unwrap();
+        if pause_state.get().clone() == PauseState::Paused && !manager.play_while_paused {
+            continue;
+        }
         if manager.hidden {
             continue;
         }
@@ -361,7 +369,6 @@ pub fn register_anim<StateMachine: AnimStateMachine>(app: &mut App) {
             .chain()
             .in_set(AnimationSet)
             .in_set(ManagersSet)
-            .after(PhysicsSet)
-            .run_if(in_state(PauseState::Unpaused)),
+            .after(PhysicsSet),
     );
 }

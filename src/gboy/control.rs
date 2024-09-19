@@ -267,7 +267,8 @@ pub(super) fn register_control(app: &mut App) {
         (control_gboy_hor, limit_speed, juice_gboy_dash_fade)
             .chain()
             .after(PhysicsSet)
-            .run_if(in_state(LevelState::Playing)),
+            .run_if(in_state(LevelState::Playing))
+            .run_if(not(in_state(PauseState::Paused))),
     );
     app.add_systems(
         Update,
@@ -279,7 +280,8 @@ pub(super) fn register_control(app: &mut App) {
         )
             .chain()
             .after(PhysicsSet)
-            .run_if(in_state(LevelState::Playing)),
+            .run_if(in_state(LevelState::Playing))
+            .run_if(not(in_state(PauseState::Paused))),
     );
 
     // juice

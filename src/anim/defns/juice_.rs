@@ -92,39 +92,40 @@ defn_animation!(
         clear: {
             path: "juice/clear.png",
             size: (160, 144),
-            render_layers: FgLayer::render_layers(),
+            render_layers: MenuLayer::render_layers(),
         },
         black: {
             path: "juice/black.png",
             size: (160, 144),
-            render_layers: FgLayer::render_layers(),
+            render_layers: MenuLayer::render_layers(),
         },
         fade_in: {
             path: "juice/fade_in.png",
             size: (160, 144),
             length: 11,
             fps: 36.0,
-            render_layers: FgLayer::render_layers(),
+            render_layers: MenuLayer::render_layers(),
         },
         fade_out: {
             path: "juice/fade_out.png",
             size: (160, 144),
             length: 11,
             fps: 36.0,
-            render_layers: FgLayer::render_layers(),
+            render_layers: MenuLayer::render_layers(),
         },
     ],
     states: [
-        Black {
-            parts: [
-                black,
-            ],
-        },
         Clear {
             parts: [
                 clear,
             ],
         },
+        Black {
+            parts: [
+                black,
+            ],
+        },
+
         FadeIn {
             parts: [
                 fade_in,
