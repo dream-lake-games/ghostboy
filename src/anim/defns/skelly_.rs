@@ -9,17 +9,57 @@ defn_animation!(
             length: 3,
             fps: 4.0,
         },
-        fire: {
-            path: "enemies/skelly/v1_fire.png",
+        fire_e: {
+            path: "enemies/skelly/v1_fire_e.png",
             size: (16, 18),
             length: 12,
             fps: 12.0,
         },
+        fire_n: {
+            path: "enemies/skelly/v1_fire_n.png",
+            size: (16, 18),
+            length: 12,
+            fps: 12.0,
+        },
+        fire_ne: {
+            path: "enemies/skelly/v1_fire_ne.png",
+            size: (16, 18),
+            length: 12,
+            fps: 12.0,
+        },
+        fire_se: {
+            path: "enemies/skelly/v1_fire_se.png",
+            size: (16, 18),
+            length: 12,
+            fps: 12.0,
+        },
+        ref_: {
+            path: "enemies/skelly/v1_ref.png",
+            size: (16, 18),
+        },
     ],
     states: [
-        Fire: {
+        FireE: {
             parts: [
-                fire,
+                fire_e,
+            ],
+            next: Idle,
+        },
+        FireN: {
+            parts: [
+                fire_n,
+            ],
+            next: Idle,
+        },
+        FireNE: {
+            parts: [
+                fire_ne,
+            ],
+            next: Idle,
+        },
+        FireSE: {
+            parts: [
+                fire_se,
             ],
             next: Idle,
         },
@@ -27,7 +67,12 @@ defn_animation!(
             parts: [
                 idle,
             ],
-            next: Fire,
+            next: Restart,
+        }
+        Restart {
+            parts: [
+                ref_,
+            ],
         }
     ],
 );

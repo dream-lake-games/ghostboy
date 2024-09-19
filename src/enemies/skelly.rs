@@ -2,7 +2,7 @@ use crate::prelude::*;
 
 #[derive(Component)]
 struct SkellySpawnPoint {
-    facing: Facing,
+    card_dir: CardDir,
 }
 
 #[derive(Bundle)]
@@ -22,14 +22,12 @@ impl LdtkEntity for SkellySpawnPointBundle {
         _texture_atlases: &mut Assets<TextureAtlasLayout>,
     ) -> Self {
         let fi = entity_instance
-            .get_field_instance("dir")
-            .expect("Skelly has no dir");
-        let dir = Dir4::from_field_instance(fi);
+            .get_field_instance("card_dir")
+            .expect("Skelly has no card_dir");
+        let card_dir = CardDir::from_field_instance(fi);
         Self {
             name: Name::new("skelly_spawn_point"),
-            spawn_point: SkellySpawnPoint {
-                facing: Facing::from_dir4(dir),
-            },
+            spawn_point: SkellySpawnPoint { card_dir },
             wait: default(),
             deps: default(),
         }
@@ -39,6 +37,7 @@ impl LdtkEntity for SkellySpawnPointBundle {
 #[derive(Component, Clone, Debug, Reflect)]
 pub struct Skelly {
     can_fire: bool,
+    card_dir: CardDir,
 }
 
 #[derive(Bundle)]
@@ -56,9 +55,12 @@ impl SkellyBundle {
     fn from_spawn_point(sp: &SkellySpawnPoint, pos: Pos) -> Self {
         Self {
             name: Name::new("skelly"),
-            skelly: Skelly { can_fire: true },
+            skelly: Skelly {
+                can_fire: true,
+                card_dir: sp.card_dir,
+            },
             anim: AnimMan::new(),
-            facing: sp.facing,
+            facing: Facing::from_card_dir(sp.card_dir),
             static_rx: StaticRx::single(
                 StaticRxKind::Default,
                 Hbox::new().with_size(8, 14).with_offset(1.0, -1.0),
@@ -93,20 +95,39 @@ fn fire_arrows(
     mut skelly: Query<(
         &Pos,
         &mut Skelly,
-        &AnimMan<SkellyAnim>,
+        &mut AnimMan<SkellyAnim>,
         &AnimBodyProgress<SkellyAnim>,
     )>,
 ) {
-    for (pos, mut skelly, anim_man, anim_progress) in &mut skelly {
-        if anim_man.get_state() == SkellyAnim::Fire
-            && anim_progress.get_body_ix(AnimBody_SkellyAnim::fire) == Some(11)
+    for (pos, mut skelly, mut anim, anim_progress) in &mut skelly {
+        macro_rules! check_pair {
+            ($anim:expr, $anim_progress:expr, $upper:ident, $lower:ident) => {{
+                paste::paste! {
+                    $anim.get_state() == SkellyAnim::[<Fire $upper>] && $anim_progress.get_body_ix(AnimBody_SkellyAnim::[<fire_ $lower>]) == Some(9)
+                }
+            }};
+        }
+        if check_pair!(anim, anim_progress, NE, ne)
+            || check_pair!(anim, anim_progress, N, n)
+            || check_pair!(anim, anim_progress, E, e)
+            || check_pair!(anim, anim_progress, SE, se)
         {
             if skelly.can_fire {
                 skelly.can_fire = false;
-                commands.spawn(ArrowBundle::new(pos.clone(), CardDir::NE));
+                commands.spawn(ArrowBundle::new(pos.clone(), skelly.card_dir));
             }
         } else {
             skelly.can_fire = true;
+        }
+        if anim.get_state() == SkellyAnim::Restart {
+            let new_state = match skelly.card_dir {
+                CardDir::N => SkellyAnim::FireN,
+                CardDir::E | CardDir::W => SkellyAnim::FireE,
+                CardDir::NE | CardDir::NW => SkellyAnim::FireNE,
+                CardDir::SE | CardDir::SW => SkellyAnim::FireSE,
+                _ => panic!("no south"),
+            };
+            anim.set_state(new_state);
         }
     }
 }

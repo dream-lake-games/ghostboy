@@ -85,6 +85,6 @@ pub(super) fn register_colls(app: &mut App) {
     app.insert_resource(TriggerColls { map: default() });
 
     app.add_systems(First, reset_colls_every_frame.in_set(PhysicsSet));
-    debug_resource!(app, StaticColls);
-    debug_resource!(app, TriggerColls);
+    // debug_resource!(app, StaticColls);
+    // debug_resource!(app, TriggerColls);
 }

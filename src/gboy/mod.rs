@@ -28,7 +28,7 @@ struct GBoyBundle {
 }
 impl GBoyBundle {
     fn new(pos: Pos) -> Self {
-        let hbox = Hbox::new().with_size(9, 12).with_offset(0.0, -1.0);
+        let hbox = Hbox::new().with_size(7, 12).with_offset(0.0, -1.0);
         Self {
             name: Name::new("gboy"),
             marker: default(),

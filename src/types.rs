@@ -26,6 +26,12 @@ impl Facing {
             Dir4::Down | Dir4::Right => Self::Right,
         }
     }
+    pub fn from_card_dir(card_dir: CardDir) -> Self {
+        match card_dir {
+            CardDir::N | CardDir::NE | CardDir::E | CardDir::SE => Facing::Right,
+            _ => Facing::Left,
+        }
+    }
     pub fn to_flip_x(&self) -> bool {
         match self {
             Self::Left => true,
@@ -103,7 +109,7 @@ impl CardDir {
             "SW" => Self::SW,
             "W" => Self::W,
             "NW" => Self::NW,
-            _ => panic!("bad dir4 field isntance string"),
+            _ => panic!("bad dir4 field isntance string {}", string),
         }
     }
 }

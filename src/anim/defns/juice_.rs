@@ -161,3 +161,52 @@ defn_animation!(
         },
     ],
 );
+
+defn_animation!(
+    LightningAnim,
+    bodies: [
+        var1: {
+            path: "environment/storm/light1.png",
+            size: (160, 144),
+            render_layers: BgLayer::render_layers(),
+        },
+        var2: {
+            path: "environment/storm/light2.png",
+            size: (160, 144),
+            render_layers: BgLayer::render_layers(),
+        },
+        var3: {
+            path: "environment/storm/light3.png",
+            size: (160, 144),
+            render_layers: BgLayer::render_layers(),
+        },
+        var4: {
+            path: "environment/storm/light4.png",
+            size: (160, 144),
+            render_layers: BgLayer::render_layers(),
+        },
+    ],
+    states: [
+        Var1 {
+            parts: [
+                var1,
+            ],
+        },
+        Var2 {
+            parts: [
+                var2,
+            ],
+        },
+        Var3 {
+            parts: [
+                var3,
+            ],
+        },
+        Var4 {
+            parts: [
+                var4,
+            ],
+        },
+    ],
+);
+impl_rand_variant!(LightningAnim);

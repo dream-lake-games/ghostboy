@@ -8,6 +8,8 @@ use super::physics_maint::{impl_physics_comp, PhysicsComp, PhysicsComps, Physics
 pub enum StaticTxKind {
     /// Standard solid thing. Stops stuff
     Solid,
+    /// A platform that only stops things that are moving down
+    PassUp,
 }
 #[derive(Clone, Copy, Debug, Reflect, PartialEq, Eq, std::hash::Hash)]
 pub enum StaticRxKind {

@@ -29,6 +29,18 @@ impl Hbox {
             size: self.size.clone(), // Not strictly needed but nice for clarity
         }
     }
+    pub fn min_x(&self) -> f32 {
+        self.offset.x - self.size.x as f32 / 2.0
+    }
+    pub fn max_x(&self) -> f32 {
+        self.offset.x + self.size.x as f32 / 2.0
+    }
+    pub fn min_y(&self) -> f32 {
+        self.offset.y - self.size.y as f32 / 2.0
+    }
+    pub fn max_y(&self) -> f32 {
+        self.offset.y + self.size.y as f32 / 2.0
+    }
 
     impl_get_copy!(offset, Vec2);
     impl_get_copy!(size, UVec2);

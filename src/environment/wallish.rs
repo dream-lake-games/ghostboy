@@ -41,3 +41,27 @@ impl Default for SpikeBundle {
         }
     }
 }
+
+#[derive(Component, Clone, Debug, Reflect, Default)]
+pub struct PassPlat;
+
+#[derive(Bundle, LdtkIntCell)]
+pub struct PassPlatBundle {
+    wait: MyLdtkWait,
+    pos: Pos,
+    pass: PassPlat,
+    static_tx: StaticTx,
+}
+impl Default for PassPlatBundle {
+    fn default() -> Self {
+        Self {
+            wait: MyLdtkWait::parent_render_layers(MainLayer::render_layers()),
+            pos: Pos::new(-6000.0, -6000.0), // Will be overwritten
+            pass: PassPlat,
+            static_tx: StaticTx::single(
+                StaticTxKind::PassUp,
+                Hbox::new().with_size(8, 2).with_offset(0.0, 2.0),
+            ),
+        }
+    }
+}

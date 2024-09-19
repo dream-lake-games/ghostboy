@@ -14,6 +14,7 @@ impl Plugin for EnvironmentPlugin {
         for val in [1, 2, 3, 4, 5, 6] {
             app.register_ldtk_int_cell_for_layer::<SpikeBundle>("Spikes", val);
         }
+        app.register_ldtk_int_cell_for_layer::<PassPlatBundle>("PassPlat", 1);
 
         arrow::register_arrows(app);
     }

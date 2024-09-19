@@ -119,7 +119,7 @@ fn resolve_collisions(
             }
             let other_thbox = translate_other!(other_stx_comp);
             if let Some(push) = my_thbox.get_push_out(&other_thbox) {
-                // STATIC COLLISION HERE
+                // STATIC COLLISION HERE (maybe)
                 let old_perp = my_vel.dot(push.normalize_or_zero()) * push.normalize_or_zero();
                 let old_par = *my_vel - old_perp;
 
@@ -133,21 +133,38 @@ fn resolve_collisions(
                     tx_ctrl: other_stx_comp.ctrl,
                     tx_kind: other_stx_comp.kind,
                 };
-                let key = *static_coll_counter;
-                *static_coll_counter += 1;
-                static_colls.insert(key, coll_rec);
-                add_ctrl_coll!(srx_ctrls, my_srx_comp.ctrl, key);
-                add_ctrl_coll!(stx_ctrls, other_stx_comp.ctrl, key);
 
-                *my_pos += push;
-                // NOTE: HAVE TO UPDATE MY_THBOX HERE SINCE POS CHANGED
-                my_thbox = my_thbox.translated(push.x, push.y);
+                let add_coll_rec = || {
+                    let key = *static_coll_counter;
+                    *static_coll_counter += 1;
+                    static_colls.insert(key, coll_rec);
+                    add_ctrl_coll!(srx_ctrls, my_srx_comp.ctrl, key);
+                    add_ctrl_coll!(stx_ctrls, other_stx_comp.ctrl, key);
+                };
+
+                let mut do_push = |grr: &mut Hbox| {
+                    *my_pos += push;
+                    // NOTE: HAVE TO UPDATE MY_THBOX HERE SINCE POS CHANGED
+                    *grr = grr.translated(push.x, push.y);
+                };
 
                 match (my_srx_comp.kind, other_stx_comp.kind) {
                     (StaticRxKind::Default, StaticTxKind::Solid) => {
+                        add_coll_rec();
+                        do_push(&mut my_thbox);
                         *my_vel = old_par;
                         if old_perp.dot(push) > 0.0 {
                             *my_vel += old_perp;
+                        }
+                    }
+                    (StaticRxKind::Default, StaticTxKind::PassUp) => {
+                        if push.y > 0.0
+                            && old_perp.y < 0.0
+                            && other_thbox.max_y() + 1.0 > my_thbox.min_y()
+                        {
+                            add_coll_rec();
+                            do_push(&mut my_thbox);
+                            *my_vel = old_par;
                         }
                     }
                 }
@@ -361,7 +378,7 @@ pub(super) fn register_logic(app: &mut App) {
     );
 
     app.insert_resource(PhysicsConsts::default());
-    debug_resource!(app, PhysicsConsts);
+    // debug_resource!(app, PhysicsConsts);
     app.add_systems(
         Update,
         apply_fake_gravity

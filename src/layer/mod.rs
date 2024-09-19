@@ -97,6 +97,11 @@ const SHADE_REMAP_IMAGE: Handle<Image> = Handle::weak_from_u128(8473287423892938
 pub struct ShadeRemaps {
     pub map: QColorMap,
 }
+impl ShadeRemaps {
+    pub fn set(&mut self, base: QColor, to: QColor) {
+        self.map.set(base, to);
+    }
+}
 
 #[derive(Debug, Resource)]
 struct CameraTargets {

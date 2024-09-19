@@ -39,6 +39,7 @@ fn handle_death(
     mut commands: Commands,
     mut cam_mode: ResMut<DynamicCameraMode>,
     mut fade: ResMut<Fade>,
+    mut remaps: ResMut<ShadeRemaps>,
 ) {
     meta_state.set(LevelState::Dying.to_meta_state());
     let Ok((eid, mut anim, pos)) = gboy.get_single_mut() else {
@@ -52,6 +53,7 @@ fn handle_death(
     commands.entity(eid).remove::<TriggerRxCtrl>();
     *cam_mode = DynamicCameraMode::Hanging;
     fade.out(pos.clone());
+    *remaps = default();
 }
 
 fn update_death(mut meta_state: ResMut<NextState<MetaState>>, boys: Query<Entity, With<GBoy>>) {

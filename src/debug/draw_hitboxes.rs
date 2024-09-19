@@ -15,6 +15,7 @@ impl HitboxColorable for StaticTxKind {
     fn to_color(&self) -> Color {
         match self {
             Self::Solid => tailwind::ORANGE_400.into(),
+            Self::PassUp => tailwind::SLATE_300.into(),
         }
     }
 }
