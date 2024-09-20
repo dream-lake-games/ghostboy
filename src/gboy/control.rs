@@ -20,7 +20,7 @@ struct GBoyControlConsts {
 impl Default for GBoyControlConsts {
     fn default() -> Self {
         Self {
-            max_hor_speed: 80.0,
+            max_hor_speed: 90.0,
             hor_acc: 480.0,
             air_hor_friction: 0.66,
             max_ver_speed: 200.0,
@@ -30,8 +30,8 @@ impl Default for GBoyControlConsts {
             dash_time: 0.1,
             dash_shake_time: 0.2,
             coyote_time: 0.2,
-            ragdoll_my_dyno: 0.1,
-            ragdoll_arrow_dyno: 0.5,
+            ragdoll_my_dyno: 0.3,
+            ragdoll_arrow_dyno: 0.9,
         }
     }
 }
@@ -193,7 +193,6 @@ fn replenish_gboy_dash(
             let arrow_dyno = all_dynos.get(coll.tx_ctrl).unwrap();
             commands.entity(eid).insert(CanDash);
             commands.entity(coll.tx_ctrl).insert(ArrowDeleted);
-            commands.trigger(LimitedBulletTime(consts.dash_shake_time));
             commands
                 .spawn(RagdollBundle::new(
                     pos.clone(),
@@ -219,6 +218,7 @@ fn start_gboy_dash(
     >,
     consts: Res<GBoyControlConsts>,
     mut commands: Commands,
+    root: Res<LevelRoot>,
 ) {
     let Ok((eid, mut dyno, facing, pos)) = gboy_q.get_single_mut() else {
         return;
@@ -234,7 +234,9 @@ fn start_gboy_dash(
         commands
             .entity(eid)
             .insert(Dashing::new(vel, consts.dash_time));
-        commands.spawn(RagdollBundle::new(pos.clone(), Dyno { vel: old_vel }));
+        commands
+            .spawn(RagdollBundle::new(pos.clone(), Dyno { vel: old_vel }))
+            .set_parent(root.eid());
     }
 }
 

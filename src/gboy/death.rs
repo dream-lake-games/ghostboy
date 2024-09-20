@@ -67,7 +67,7 @@ fn update_ragdolls(
     mut commands: Commands,
 ) {
     for (eid, mut anim, touches) in &mut ragdolls {
-        if (touches[Dir4::Down] == 0.0 && touches[Dir4::Up] > 0.2) || touches[Dir4::Down] > 30.0 {
+        if (touches[Dir4::Down] == 0.0 && touches[Dir4::Up] > 0.2) || touches[Dir4::Down] > 3.0 {
             if anim.get_state() == RagdollAnim::Fall {
                 anim.set_state(RagdollAnim::Land);
                 commands.entity(eid).remove::<Dyno>();
