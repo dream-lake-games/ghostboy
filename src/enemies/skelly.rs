@@ -53,6 +53,7 @@ struct SkellyBundle {
 }
 impl SkellyBundle {
     fn from_spawn_point(sp: &SkellySpawnPoint, pos: Pos) -> Self {
+        let translated = pos.translated(Vec2::new(0.0, 4.0));
         Self {
             name: Name::new("skelly"),
             skelly: Skelly {
@@ -65,9 +66,9 @@ impl SkellyBundle {
                 StaticRxKind::Default,
                 Hbox::new().with_size(8, 14).with_offset(1.0, -1.0),
             ),
-            pos,
+            pos: translated,
             dyno: default(),
-            spatial: pos.to_spatial(ZIX_SKELLY),
+            spatial: translated.to_spatial(ZIX_SKELLY),
         }
     }
 }

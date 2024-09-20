@@ -60,7 +60,7 @@ impl Default for PassPlatBundle {
             pass: PassPlat,
             static_tx: StaticTx::single(
                 StaticTxKind::PassUp,
-                Hbox::new().with_size(8, 2).with_offset(0.0, 2.0),
+                Hbox::new().with_size(8, 4).with_offset(0.0, 2.0),
             ),
         }
     }

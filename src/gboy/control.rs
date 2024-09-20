@@ -18,7 +18,7 @@ impl Default for GBoyControlConsts {
             max_hor_speed: 80.0,
             hor_acc: 480.0,
             air_hor_friction: 0.66,
-            max_ver_speed: 169.0,
+            max_ver_speed: 200.0,
             slowdown_acc: 960.0,
             jump_vel: 156.0,
             dash_speed: 200.0,
