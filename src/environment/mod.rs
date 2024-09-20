@@ -1,9 +1,11 @@
 use crate::prelude::*;
 
 pub mod arrow;
+pub mod parallax;
 pub mod wallish;
 
 pub use arrow::*;
+pub use parallax::*;
 pub use wallish::*;
 
 pub(super) struct EnvironmentPlugin;
@@ -17,5 +19,6 @@ impl Plugin for EnvironmentPlugin {
         app.register_ldtk_int_cell_for_layer::<PassPlatBundle>("PassPlat", 1);
 
         arrow::register_arrows(app);
+        parallax::register_parallax(app);
     }
 }

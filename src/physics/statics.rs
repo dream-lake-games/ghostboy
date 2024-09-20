@@ -17,16 +17,11 @@ pub enum StaticRxKind {
     Default,
 }
 
-/// When alongside a StaticRxCtrl, it will update every frame if there are any collisions in each Dir
+/// When alongside a StaticRxCtrl, it will update every frame how long ago since a collision in that dir
 /// NOTE: Only counts a collision being "pushed" into
 #[derive(Component, Clone, Debug, Reflect, Default)]
 pub struct StaticRxTouches {
-    map: HashMap<Dir4, bool>,
-}
-impl StaticRxTouches {
-    pub fn clear(&mut self) {
-        self.map.clear()
-    }
+    map: HashMap<Dir4, f32>,
 }
 
 // PLUMBING
@@ -89,14 +84,14 @@ pub struct StaticRxCtrl {
 }
 
 impl std::ops::Index<Dir4> for StaticRxTouches {
-    type Output = bool;
+    type Output = f32;
 
     fn index(&self, index: Dir4) -> &Self::Output {
-        self.map.get(&index).unwrap_or(&false)
+        self.map.get(&index).unwrap_or(&0.0)
     }
 }
 impl StaticRxTouches {
-    pub fn set(&mut self, dir: Dir4, val: bool) {
+    pub fn set(&mut self, dir: Dir4, val: f32) {
         self.map.insert(dir, val);
     }
 }

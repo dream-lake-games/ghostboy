@@ -74,3 +74,46 @@ defn_animation!(
         },
     ],
 );
+
+defn_animation!(
+    RagdollAnim,
+    bodies: [
+        fall: {
+            path: "gboy/v1_die_fall.png",
+            size: (17, 17),
+            offset: (-0.5, -0.5),
+        },
+        land: {
+            path: "gboy/v1_die_land.png",
+            size: (17, 17),
+            length: 14,
+            offset: (-0.5, -0.5),
+        },
+        flower_wave: {
+            path: "gboy/v1_flower_wave.png",
+            size: (17, 17),
+            length: 12,
+            offset: (-0.5, -0.5),
+        },
+    ],
+    states: [
+        Fall: {
+            parts: [
+                fall,
+            ],
+        },
+        Land: {
+            parts: [
+                land,
+            ],
+            next: FlowerWave,
+        },
+        FlowerWave: {
+            parts: [
+                flower_wave,
+            ],
+            #[despawn]
+            next: dummy,
+        },
+    ],
+);

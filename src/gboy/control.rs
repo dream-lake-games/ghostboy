@@ -1,5 +1,7 @@
 use crate::prelude::*;
 
+use super::RagdollBundle;
+
 #[derive(Resource, Clone, Debug, Reflect)]
 struct GBoyControlConsts {
     max_hor_speed: f32,
@@ -11,6 +13,9 @@ struct GBoyControlConsts {
     dash_speed: f32,
     dash_time: f32,
     dash_shake_time: f32,
+    coyote_time: f32,
+    ragdoll_my_dyno: f32,
+    ragdoll_arrow_dyno: f32,
 }
 impl Default for GBoyControlConsts {
     fn default() -> Self {
@@ -24,6 +29,9 @@ impl Default for GBoyControlConsts {
             dash_speed: 200.0,
             dash_time: 0.1,
             dash_shake_time: 0.2,
+            coyote_time: 0.2,
+            ragdoll_my_dyno: 0.1,
+            ragdoll_arrow_dyno: 0.5,
         }
     }
 }
@@ -51,6 +59,11 @@ impl Component for Dashing {
         });
         hooks.on_remove(|mut world, eid, _| {
             world.commands().entity(eid).try_insert(Gravity::default());
+            if let Some(mut dyno) = world.get_mut::<Dyno>(eid) {
+                if dyno.vel.y > 0.0 {
+                    dyno.vel.y *= 0.8;
+                }
+            }
         });
     }
 }
@@ -77,7 +90,7 @@ fn control_gboy_hor(
     };
     let x = dir4_input.as_vec2().x;
     let acc = consts.hor_acc
-        * if touches[Dir4::Down] {
+        * if touches[Dir4::Down] == 0.0 {
             1.0
         } else {
             consts.air_hor_friction
@@ -110,7 +123,8 @@ fn control_gboy_ver(
     let Ok((mut dyno, touches, pos)) = gboy_q.get_single_mut() else {
         return;
     };
-    if gbutton_input.just_pressed(GButton::A) && touches[Dir4::Down] {
+    // COYOTE FRAMES
+    if gbutton_input.just_pressed(GButton::A) && touches[Dir4::Down] < consts.coyote_time {
         dyno.vel.y = consts.jump_vel;
         commands.trigger(JumpJuiceEvent { pos: pos.clone() });
     }
@@ -139,9 +153,9 @@ fn limit_speed(
     if dyno.vel.y.abs() > consts.max_ver_speed {
         let adjust = dyno.vel.y.signum() * -1.0 * acc;
         dyno.vel.y += adjust;
-        if dyno.vel.y.abs() < consts.max_hor_speed {
+        if dyno.vel.y.abs() < consts.max_ver_speed {
             // Don't slow past limit
-            dyno.vel.y = dyno.vel.y.signum() * consts.max_hor_speed;
+            dyno.vel.y = dyno.vel.y.signum() * consts.max_ver_speed;
         }
     }
 }
@@ -150,24 +164,45 @@ fn limit_speed(
 fn replenish_gboy_dash(
     mut commands: Commands,
     mut gboy_q: Query<
-        (Entity, &StaticRxTouches, &TriggerRxCtrl, Option<&Dashing>),
+        (
+            Entity,
+            &StaticRxTouches,
+            &TriggerRxCtrl,
+            Option<&Dashing>,
+            &Pos,
+            &Dyno,
+        ),
         (With<GBoy>, Without<CanDash>),
     >,
     colls: Res<TriggerColls>,
     valid_arrows: Query<Entity, (With<Arrow>, Without<ArrowDeleted>)>,
+    consts: Res<GBoyControlConsts>,
+    level_root: Res<LevelRoot>,
+    all_dynos: Query<&Dyno>,
 ) {
-    let Ok((eid, touches, trigger_rx, maybe_dashing)) = gboy_q.get_single_mut() else {
+    let Ok((eid, touches, trigger_rx, maybe_dashing, pos, dyno)) = gboy_q.get_single_mut() else {
         return;
     };
-    if touches[Dir4::Down] && !maybe_dashing.is_some() {
+    if touches[Dir4::Down] == 0.0 && maybe_dashing.is_none() {
         commands.entity(eid).insert(CanDash);
         return;
     }
     let my_colls = colls.get_refs(&trigger_rx.coll_keys);
     for coll in my_colls {
         if coll.tx_kind == TriggerTxKind::Arrow && valid_arrows.contains(coll.tx_ctrl) {
+            let arrow_dyno = all_dynos.get(coll.tx_ctrl).unwrap();
             commands.entity(eid).insert(CanDash);
             commands.entity(coll.tx_ctrl).insert(ArrowDeleted);
+            commands.trigger(LimitedBulletTime(consts.dash_shake_time));
+            commands
+                .spawn(RagdollBundle::new(
+                    pos.clone(),
+                    Dyno {
+                        vel: consts.ragdoll_my_dyno * dyno.vel
+                            + consts.ragdoll_arrow_dyno * arrow_dyno.vel,
+                    },
+                ))
+                .set_parent(level_root.eid());
             break;
         }
     }
@@ -178,14 +213,18 @@ fn replenish_gboy_dash(
 fn start_gboy_dash(
     dir4_input: Res<Dir4Input>,
     gbutton_input: Res<GButtonInput>,
-    mut gboy_q: Query<(Entity, &mut Dyno, &Facing), (With<GBoy>, Without<Dashing>, With<CanDash>)>,
+    mut gboy_q: Query<
+        (Entity, &mut Dyno, &Facing, &Pos),
+        (With<GBoy>, Without<Dashing>, With<CanDash>),
+    >,
     consts: Res<GBoyControlConsts>,
     mut commands: Commands,
 ) {
-    let Ok((eid, mut dyno, facing)) = gboy_q.get_single_mut() else {
+    let Ok((eid, mut dyno, facing, pos)) = gboy_q.get_single_mut() else {
         return;
     };
     if gbutton_input.just_pressed(GButton::B) {
+        let old_vel = dyno.vel;
         let mut vel = dir4_input.as_vec2();
         if vel == Vec2::ZERO {
             vel = if facing.right() { Vec2::X } else { -Vec2::X };
@@ -195,6 +234,7 @@ fn start_gboy_dash(
         commands
             .entity(eid)
             .insert(Dashing::new(vel, consts.dash_time));
+        commands.spawn(RagdollBundle::new(pos.clone(), Dyno { vel: old_vel }));
     }
 }
 
@@ -256,11 +296,12 @@ fn dash_juice(
         AnimMan::<SmokeCirc>::new().with_state(SmokeCirc::random()),
     ));
     camera_shake.start_shake(consts.dash_shake_time);
+    commands.trigger(LimitedBulletTime(consts.dash_shake_time));
 }
 
 pub(super) fn register_control(app: &mut App) {
     app.insert_resource(GBoyControlConsts::default());
-    // debug_resource!(app, GBoyControlConsts);
+    debug_resource!(app, GBoyControlConsts);
 
     app.add_systems(
         BulletUpdate,

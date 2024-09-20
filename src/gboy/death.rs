@@ -62,6 +62,20 @@ fn update_death(mut meta_state: ResMut<NextState<MetaState>>, boys: Query<Entity
     }
 }
 
+fn update_ragdolls(
+    mut ragdolls: Query<(Entity, &mut AnimMan<RagdollAnim>, &StaticRxTouches)>,
+    mut commands: Commands,
+) {
+    for (eid, mut anim, touches) in &mut ragdolls {
+        if (touches[Dir4::Down] == 0.0 && touches[Dir4::Up] > 0.2) || touches[Dir4::Down] > 30.0 {
+            if anim.get_state() == RagdollAnim::Fall {
+                anim.set_state(RagdollAnim::Land);
+                commands.entity(eid).remove::<Dyno>();
+            }
+        }
+    }
+}
+
 pub(super) fn register_death(app: &mut App) {
     app.add_systems(
         Update,
@@ -71,4 +85,5 @@ pub(super) fn register_death(app: &mut App) {
     );
     app.add_systems(Update, (update_death).run_if(in_state(LevelState::Dying)));
     app.observe(handle_death);
+    app.add_systems(Update, update_ragdolls);
 }

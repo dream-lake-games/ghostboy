@@ -15,7 +15,7 @@ pub struct BulletTime {
 }
 impl BulletTime {
     const NORMAL: f32 = 1.0;
-    const SLOW: f32 = 0.2;
+    const SLOW: f32 = 0.3;
     const STOPPED: f32 = 0.0;
 
     pub fn new() -> Self {
@@ -66,6 +66,55 @@ fn shephard_bullet_update(world: &mut World) {
     }
 }
 
+#[derive(Event)]
+pub struct LimitedBulletTime(pub f32);
+
+fn start_limited_bullet_time(
+    trigger: Trigger<LimitedBulletTime>,
+    mut existing: Query<&mut LimitedActor>,
+    mut commands: Commands,
+) {
+    match existing.get_single_mut() {
+        Ok(mut actor) => {
+            actor.0 = trigger.event().0;
+        }
+        Err(_e) => {
+            commands.spawn((
+                Name::new("limited_bullet_time"),
+                LimitedActor(trigger.event().0),
+            ));
+        }
+    }
+}
+
+fn update_limited_bullet_time(
+    mut commands: Commands,
+    mut existing: Query<(Entity, &mut LimitedActor)>,
+    time: Res<Time>,
+) {
+    if let Ok((eid, mut actor)) = existing.get_single_mut() {
+        actor.0 -= time.delta_seconds();
+        if actor.0 <= 0.0 {
+            commands.entity(eid).despawn_recursive();
+        }
+    }
+}
+
+struct LimitedActor(f32);
+impl Component for LimitedActor {
+    const STORAGE_TYPE: StorageType = StorageType::Table;
+    fn register_component_hooks(hooks: &mut bevy::ecs::component::ComponentHooks) {
+        hooks.on_add(|mut world, _eid, _| {
+            let mut bullet_time = world.resource_mut::<BulletTime>();
+            bullet_time.set_slow();
+        });
+        hooks.on_remove(|mut world, _eid, _| {
+            let mut bullet_time = world.resource_mut::<BulletTime>();
+            bullet_time.set_normal();
+        });
+    }
+}
+
 pub(super) struct BulletTimePlugin;
 impl Plugin for BulletTimePlugin {
     fn build(&self, app: &mut App) {
@@ -75,5 +124,7 @@ impl Plugin for BulletTimePlugin {
         app.init_schedule(BulletUpdate);
         app.insert_resource(InGameTimePassed(0.0));
         app.add_systems(Update, shephard_bullet_update.in_set(PhysicsSet));
+        app.observe(start_limited_bullet_time);
+        app.add_systems(Update, update_limited_bullet_time);
     }
 }

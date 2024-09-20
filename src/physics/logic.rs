@@ -326,23 +326,48 @@ fn move_interesting_dynos(
 fn update_static_rx_touches(
     mut touches: Query<(&StaticRxCtrl, &mut StaticRxTouches)>,
     static_colls: Res<StaticColls>,
+    bullet_time: Res<BulletTime>,
 ) {
     for (ctrl, mut touches) in &mut touches {
-        touches.clear();
+        let mut touched = HashSet::new();
         for coll in static_colls.get_refs(&ctrl.coll_keys) {
             const AMT: f32 = 0.00001;
             if coll.push.x > AMT && coll.rx_perp.x < -AMT {
-                touches.set(Dir4::Left, true);
+                touched.insert(Dir4::Left);
             }
             if coll.push.x < -AMT && coll.rx_perp.x > AMT {
-                touches.set(Dir4::Right, true);
+                touched.insert(Dir4::Right);
             }
             if coll.push.y > AMT && coll.rx_perp.y < -AMT {
-                touches.set(Dir4::Down, true);
+                touched.insert(Dir4::Down);
             }
             if coll.push.y < -AMT && coll.rx_perp.y > AMT {
-                touches.set(Dir4::Up, true);
+                touched.insert(Dir4::Up);
             }
+        }
+        if touched.contains(&Dir4::Left) {
+            touches.set(Dir4::Left, 0.0);
+        } else {
+            let inc = touches[Dir4::Left] + bullet_time.delta_seconds();
+            touches.set(Dir4::Left, inc);
+        }
+        if touched.contains(&Dir4::Right) {
+            touches.set(Dir4::Right, 0.0);
+        } else {
+            let inc = touches[Dir4::Right] + bullet_time.delta_seconds();
+            touches.set(Dir4::Right, inc);
+        }
+        if touched.contains(&Dir4::Down) {
+            touches.set(Dir4::Down, 0.0);
+        } else {
+            let inc = touches[Dir4::Down] + bullet_time.delta_seconds();
+            touches.set(Dir4::Down, inc);
+        }
+        if touched.contains(&Dir4::Up) {
+            touches.set(Dir4::Up, 0.0);
+        } else {
+            let inc = touches[Dir4::Up] + bullet_time.delta_seconds();
+            touches.set(Dir4::Up, inc);
         }
     }
 }

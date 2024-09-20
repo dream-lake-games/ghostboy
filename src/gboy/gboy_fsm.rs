@@ -18,7 +18,7 @@ fn update_gboy_animation(
     let (mut anim, dyno, srx_touches, can_dash) = gboy.single_mut();
     let moving_hor = dyno.vel.x.abs() > 0.1;
 
-    if srx_touches[Dir4::Down] {
+    if srx_touches[Dir4::Down] == 0.0 {
         if moving_hor {
             anim.set_state(GBoyAnim::Run);
         } else {

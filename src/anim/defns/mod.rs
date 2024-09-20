@@ -16,6 +16,7 @@ pub(super) struct AnimDefnsPlugin;
 impl Plugin for AnimDefnsPlugin {
     fn build(&self, app: &mut App) {
         register_anim::<GBoyAnim>(app);
+        register_anim::<RagdollAnim>(app);
         register_anim::<SkellyAnim>(app);
         register_anim::<ArrowAnim>(app);
         register_anim::<TombstoneAnim>(app);

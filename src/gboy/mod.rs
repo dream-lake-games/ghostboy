@@ -42,7 +42,7 @@ impl GBoyBundle {
             gravity: default(),
             dyno_facing: default(),
             spatial: SpatialBundle::from_transform(Transform::from_translation(
-                pos.as_vec2().extend(20.0),
+                pos.as_vec2().extend(ZIX_GBOY),
             )),
         }
     }
@@ -50,6 +50,42 @@ impl GBoyBundle {
 
 pub fn maintain_sanity(gboy: Query<Entity, With<GBoy>>) {
     assert!(gboy.iter().count() == 1);
+}
+
+#[derive(Component, Clone, Debug, Reflect, Default)]
+struct Ragdoll;
+
+#[derive(Bundle)]
+struct RagdollBundle {
+    name: Name,
+    marker: Ragdoll,
+    anim: AnimMan<RagdollAnim>,
+    static_rx: StaticRx,
+    static_rx_touches: StaticRxTouches,
+    pos: Pos,
+    dyno: Dyno,
+    gravity: Gravity,
+    dyno_facing: DynoFacing,
+    spatial: SpatialBundle,
+}
+impl RagdollBundle {
+    fn new(pos: Pos, dyno: Dyno) -> Self {
+        let hbox = Hbox::new().with_size(7, 12).with_offset(0.0, 0.0);
+        Self {
+            name: Name::new("gboy"),
+            marker: default(),
+            anim: AnimMan::new(),
+            static_rx: StaticRx::single(StaticRxKind::Default, hbox.clone()),
+            static_rx_touches: default(),
+            pos,
+            dyno,
+            gravity: default(),
+            dyno_facing: default(),
+            spatial: SpatialBundle::from_transform(Transform::from_translation(
+                pos.as_vec2().extend(ZIX_GBOY - 0.1),
+            )),
+        }
+    }
 }
 
 pub(super) struct GBoyPlugin;
