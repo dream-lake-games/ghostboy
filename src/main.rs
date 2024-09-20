@@ -14,14 +14,15 @@ pub mod menu;
 pub mod my_ldtk;
 pub mod physics;
 pub mod roots;
+pub mod sound;
 pub mod state;
 pub mod types;
 
 pub mod prelude {
     pub use super::{
         anim::*, camera::*, consts::*, debug::*, enemies::*, environment::*, gboy::*, input::*,
-        juice::*, layer::*, macros::*, menu::*, my_ldtk::*, physics::*, roots::*, state::*,
-        types::*,
+        juice::*, layer::*, macros::*, math::*, menu::*, my_ldtk::*, physics::*, roots::*,
+        sound::*, state::*, types::*,
     };
     pub use bevy::{
         color::palettes::tailwind,
@@ -99,7 +100,8 @@ fn main() {
         .add_plugins(MyLdtkPlugin)
         .add_plugins(PhysicsPlugin)
         .add_plugins(RootPlugin)
-        .add_plugins(StatePlugin);
+        .add_plugins(StatePlugin)
+        .add_plugins(SoundPlugin);
 
     // Have fun!
     app.run();

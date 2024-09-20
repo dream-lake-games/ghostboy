@@ -11,6 +11,7 @@ fn on_enter(
     ass: Res<AssetServer>,
     mut fade: ResMut<Fade>,
     cam_pos: Query<&Pos, With<DynamicCamera>>,
+    mut music: ResMut<MusicManager>,
 ) {
     commands.spawn((
         Name::new("redeath_title_sprite"),
@@ -22,6 +23,7 @@ fn on_enter(
         RedeathSprite,
     ));
     fade.in_(cam_pos.get_single().unwrap_or(&Pos::new(0.0, 0.0)).clone());
+    music.fade_to_song(MusicKind::Draft);
 }
 
 fn fixed_update(mut commands: Commands) {
