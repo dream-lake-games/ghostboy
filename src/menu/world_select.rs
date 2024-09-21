@@ -148,10 +148,12 @@ fn update_input(
         if go_back {
             fade.out(cam_pos.single().clone());
             commands.spawn(Action::GoBack);
+            commands.spawn(SoundEffect::Select);
         }
         if go_forward {
             fade.out(cam_pos.single().clone());
             commands.spawn(Action::GoForward(iid.iid.clone()));
+            commands.spawn(SoundEffect::Select);
         }
     } else {
         if fade.anim == FadeAnim::Black {

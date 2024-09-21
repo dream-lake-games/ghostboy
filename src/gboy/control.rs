@@ -74,7 +74,7 @@ impl Component for CanDash {
     const STORAGE_TYPE: StorageType = StorageType::Table;
 
     fn register_component_hooks(hooks: &mut bevy::ecs::component::ComponentHooks) {
-        hooks.on_add(|mut world, eid, _| {});
+        hooks.on_add(|mut _world, _, _| {});
     }
 }
 
@@ -202,6 +202,7 @@ fn replenish_gboy_dash(
                     },
                 ))
                 .set_parent(level_root.eid());
+            commands.spawn((SoundEffect::Replenish, OneSound::Ignore));
             break;
         }
     }
@@ -299,6 +300,7 @@ fn dash_juice(
     ));
     camera_shake.start_shake(consts.dash_shake_time);
     commands.trigger(LimitedBulletTime(consts.dash_shake_time));
+    commands.spawn(SoundEffect::Thunder);
 }
 
 pub(super) fn register_control(app: &mut App) {

@@ -25,7 +25,7 @@ pub struct StaticRxTouches {
 }
 
 // PLUMBING
-#[derive(Bundle)]
+#[derive(Bundle, Debug, Clone, Reflect)]
 pub struct StaticTx {
     ctrl: StaticTxCtrl,
     comps: PhysicsComps<StaticTxComp>,

@@ -26,7 +26,7 @@ impl MusicKind {
     fn to_volume_adjustment(&self) -> f32 {
         match self {
             Self::NoSong => 0.0, // hack (this one is clean tho)
-            Self::Draft => 0.3,
+            Self::Draft => 0.5,
         }
     }
 }

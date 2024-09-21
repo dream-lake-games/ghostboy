@@ -8,6 +8,8 @@ pub mod skelly_;
 pub use skelly_::*;
 pub mod tombstone_;
 pub use tombstone_::*;
+pub mod wallish_;
+pub use wallish_::*;
 
 use super::anim_man::register_anim;
 use super::*;
@@ -20,6 +22,7 @@ impl Plugin for AnimDefnsPlugin {
         register_anim::<SkellyAnim>(app);
         register_anim::<ArrowAnim>(app);
         register_anim::<TombstoneAnim>(app);
+        register_anim::<EphPlatAnim>(app);
         // juice
         register_anim::<DashFadeAnim>(app);
         register_anim::<SmokeDown>(app);

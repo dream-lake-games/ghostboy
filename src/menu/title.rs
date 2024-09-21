@@ -1,3 +1,5 @@
+use bevy::audio::{PlaybackMode, Volume};
+
 use crate::prelude::*;
 
 #[derive(Component)]
@@ -6,12 +8,16 @@ struct RedeathSprite;
 #[derive(Component)]
 struct WentForward;
 
+#[derive(Component)]
+struct LightRainSpawned;
+
 fn on_enter(
     mut commands: Commands,
     ass: Res<AssetServer>,
     mut fade: ResMut<Fade>,
     cam_pos: Query<&Pos, With<DynamicCamera>>,
     mut music: ResMut<MusicManager>,
+    existing_rain: Query<&LightRainSpawned>,
 ) {
     commands.spawn((
         Name::new("redeath_title_sprite"),
@@ -24,6 +30,20 @@ fn on_enter(
     ));
     fade.in_(cam_pos.get_single().unwrap_or(&Pos::new(0.0, 0.0)).clone());
     music.fade_to_song(MusicKind::Draft);
+    if existing_rain.is_empty() {
+        commands.spawn((
+            AudioBundle {
+                source: ass.load(SoundEffect::LightRain.path()),
+                settings: PlaybackSettings {
+                    mode: PlaybackMode::Loop,
+                    volume: Volume::new(SoundEffect::LightRain.mult()),
+                    ..default()
+                },
+            },
+            LightRainSpawned,
+            Name::new("lightrain"),
+        ));
+    }
 }
 
 fn fixed_update(mut commands: Commands) {
@@ -46,6 +66,7 @@ fn update(
     if go_forward && fade.anim == FadeAnim::Clear {
         fade.out(cam_pos.single().clone());
         commands.spawn(WentForward);
+        commands.spawn(SoundEffect::Select);
     }
     if !went_forward.is_empty() {
         if fade.anim == FadeAnim::Black {

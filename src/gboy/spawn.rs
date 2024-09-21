@@ -22,8 +22,16 @@ impl Component for TombstoneActive {
         });
     }
 }
-#[derive(Component, Clone, Debug, Reflect)]
+#[derive(Clone, Debug, Reflect)]
 struct TombstoneReached;
+impl Component for TombstoneReached {
+    const STORAGE_TYPE: StorageType = StorageType::Table;
+    fn register_component_hooks(hooks: &mut bevy::ecs::component::ComponentHooks) {
+        hooks.on_add(|mut world, _, _| {
+            world.commands().spawn(SoundEffect::ReachSpawn);
+        });
+    }
+}
 
 #[derive(Component, Default)]
 struct TombstoneHere {

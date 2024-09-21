@@ -54,6 +54,13 @@ fn handle_death(
     *cam_mode = DynamicCameraMode::Hanging;
     fade.out(pos.clone());
     *remaps = default();
+    let se = vec![
+        SoundEffect::Death1,
+        SoundEffect::Death2,
+        SoundEffect::Death3,
+    ]
+    .pick();
+    commands.spawn(se);
 }
 
 fn update_death(mut meta_state: ResMut<NextState<MetaState>>, boys: Query<Entity, With<GBoy>>) {

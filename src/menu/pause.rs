@@ -61,6 +61,7 @@ fn on_enter(mut commands: Commands, ass: Res<AssetServer>) {
         MenuLayer::render_layers(),
         PauseSprite,
     ));
+    commands.spawn(SoundEffect::PauseIn);
     let mut _last_ent;
     // let mut new_ent = None;
     // macro_rules! add_level {
@@ -135,6 +136,7 @@ fn update_input(
         }
         if go_back {
             commands.spawn(Action::Unpause);
+            commands.spawn(SoundEffect::Select);
         }
     } else {
         let act = action.single();
@@ -160,6 +162,7 @@ fn on_exit(
     for ent in &ephemeral {
         commands.entity(ent).despawn_recursive();
     }
+    commands.spawn(SoundEffect::PauseOut);
 }
 
 fn watch_for_pause(

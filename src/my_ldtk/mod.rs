@@ -4,7 +4,10 @@ mod my_ldtk_levels;
 mod my_ldtk_maint;
 
 pub use my_ldtk_levels::CurrentLevelHelpers;
-pub use my_ldtk_maint::{LdtkDependents as MyLdtkDependents, MyLdtkWait};
+pub use my_ldtk_maint::{
+    register_replaceable, LdtkDependents as MyLdtkDependents, MyLdtkReplacable, MyLdtkReplace,
+    MyLdtkWait,
+};
 
 pub(super) struct MyLdtkPlugin;
 impl Plugin for MyLdtkPlugin {

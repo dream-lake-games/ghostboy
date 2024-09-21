@@ -9,6 +9,7 @@ pub enum TriggerTxKind {
     GBoy,
     Arrow,
     Spike,
+    Dummy,
 }
 #[derive(Clone, Copy, Debug, Reflect, PartialEq, Eq, std::hash::Hash)]
 pub enum TriggerRxKind {
@@ -17,7 +18,7 @@ pub enum TriggerRxKind {
 }
 
 // PLUMBING
-#[derive(Bundle)]
+#[derive(Bundle, Reflect, Debug, Clone)]
 pub struct TriggerTx {
     ctrl: TriggerTxCtrl,
     comps: PhysicsComps<TriggerTxComp>,

@@ -42,6 +42,20 @@ impl MyLdtkWait {
     with_wait_option!(parent_render_layers, RenderLayers);
 }
 
+pub trait MyLdtkReplacable: Bundle + Queryable {
+    fn from_pos(pos: Pos) -> Self;
+}
+
+#[derive(Component, LdtkIntCell)]
+pub struct MyLdtkReplace<B: MyLdtkReplacable> {
+    _pd: Option<B>,
+}
+impl<B: MyLdtkReplacable> Default for MyLdtkReplace<B> {
+    fn default() -> Self {
+        Self { _pd: None }
+    }
+}
+
 fn post_ldtk_blessing(
     mut commands: Commands,
     ents: Query<(Entity, &GlobalTransform, &MyLdtkWait, Option<&Parent>)>,
@@ -63,6 +77,29 @@ fn post_ldtk_blessing(
             }
         }
     }
+}
+
+fn post_ldtk_replacement<B: MyLdtkReplacable>(
+    mut commands: Commands,
+    ents: Query<(Entity, &GlobalTransform, &MyLdtkReplace<B>)>,
+    root: Res<LevelRoot>,
+) {
+    for (eid, gtran, _replace) in &ents {
+        let pos = Pos::new(gtran.translation().x, gtran.translation().y);
+        let id = commands
+            .spawn(B::from_pos(pos))
+            .set_parent(root.eid())
+            .insert(pos.to_spatial(1.2))
+            .id();
+        commands.entity(eid).remove::<MyLdtkReplace<B>>();
+        commands
+            .entity(eid)
+            .insert(LdtkDependents { ents: vec![id] });
+    }
+}
+
+pub fn register_replaceable<B: MyLdtkReplacable>(app: &mut App) {
+    app.add_systems(PreUpdate, post_ldtk_replacement::<B>);
 }
 
 /// For spawners who's children should die when they die

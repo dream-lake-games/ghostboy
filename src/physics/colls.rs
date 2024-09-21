@@ -30,6 +30,9 @@ impl StaticColls {
     pub fn get_refs(&self, coll_keys: &[CollKey]) -> Vec<&StaticCollRec> {
         coll_keys.iter().filter_map(|key| self.get(key)).collect()
     }
+    pub fn all(&self) -> Vec<&StaticCollRec> {
+        self.map.values().into_iter().collect()
+    }
 }
 
 #[derive(Debug, Clone, Reflect)]

@@ -2,6 +2,7 @@ use crate::prelude::*;
 
 pub mod camera_shake;
 pub mod fade;
+mod sounds;
 pub mod storm;
 
 pub use camera_shake::*;
@@ -14,5 +15,6 @@ impl Plugin for JuicePlugin {
         camera_shake::register_camera_shake(app);
         fade::register_fade(app);
         storm::register_storm(app);
+        sounds::juice_sounds(app);
     }
 }

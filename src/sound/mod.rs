@@ -1,9 +1,11 @@
 use crate::prelude::*;
 
 pub mod effect;
+pub mod effect_defns;
 pub mod music;
 
 pub use effect::*;
+pub use effect_defns::*;
 pub use music::*;
 
 #[derive(Debug, Resource)]
@@ -29,5 +31,6 @@ impl Plugin for SoundPlugin {
         app.insert_resource(SoundSettings::default());
         app.add_plugins(MusicPlugin);
         app.add_plugins(SoundEffectPlugin);
+        effect_defns::register_effect_defns(app);
     }
 }

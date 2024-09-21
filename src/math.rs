@@ -21,6 +21,16 @@ impl std::ops::AddAssign<Vec2> for Pos {
     }
 }
 
+pub trait MyPick<V> {
+    fn pick(&self) -> V;
+}
+
+impl<V: Clone> MyPick<V> for Vec<V> {
+    fn pick(&self) -> V {
+        self.choose(&mut thread_rng()).unwrap().clone()
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Reflect)]
 pub enum Spleen {
     EaseInCubic,
