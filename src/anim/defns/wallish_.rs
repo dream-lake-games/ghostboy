@@ -39,3 +39,40 @@ defn_animation!(
         }
     ],
 );
+
+defn_animation!(
+    GuilloAnim,
+    bodies: [
+        up: {
+            path: "environment/guillo_up.png",
+            size: (16, 36),
+        },
+        fall: {
+            path: "environment/guillo_fall.png",
+            size: (16, 36),
+            length: 6,
+        },
+        down: {
+            path: "environment/guillo_down.png",
+            size: (16, 36),
+        },
+    ],
+    states: [
+        Up {
+            parts: [
+                up,
+            ],
+        }
+        Fall {
+            parts: [
+                fall,
+            ],
+            next: Down,
+        }
+        Down {
+            parts: [
+                down,
+            ],
+        }
+    ],
+);

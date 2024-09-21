@@ -97,8 +97,27 @@ fn startup_mountains(mut commands: Commands, ass: Res<AssetServer>) {
     ));
 }
 
+fn some_menu_force_move(
+    meta_state: Res<State<MetaState>>,
+    mut last_camera_tran: ResMut<LastCameraPos>,
+    cam_pos: Query<&Pos, With<DynamicCamera>>,
+    time: Res<Time>,
+) {
+    let cam_pos = cam_pos.single();
+    if matches!(meta_state.get(), MetaState::Menu(_)) {
+        *last_camera_tran = LastCameraPos(
+            cam_pos
+                .clone()
+                .translated(-1.0 * FRAMERATE * time.delta_seconds() * Vec2::X),
+        );
+    }
+}
+
 pub(super) fn register_parallax(app: &mut App) {
     app.insert_resource(LastCameraPos(Pos::new(0.0, 0.0)));
     app.add_systems(Startup, startup_mountains);
-    app.add_systems(PostUpdate, update_parallaxes.after(CameraSet));
+    app.add_systems(
+        PostUpdate,
+        (some_menu_force_move, update_parallaxes).after(CameraSet),
+    );
 }

@@ -26,7 +26,7 @@ fn reload_level(
         meta_state.set(
             LevelState::Loading(LevelLoadingState {
                 world_path: "ldtk/world.ldtk".to_string(),
-                level_iid: LevelIid::new("c6ff8fe0-73f0-11ef-8383-33fd1f1459ac"),
+                level_iid: LevelIid::new("d80578d0-73f0-11ef-8383-830e710445b0"),
             })
             .to_meta_state(),
         );

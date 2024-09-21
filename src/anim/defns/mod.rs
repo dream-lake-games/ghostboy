@@ -23,6 +23,7 @@ impl Plugin for AnimDefnsPlugin {
         register_anim::<ArrowAnim>(app);
         register_anim::<TombstoneAnim>(app);
         register_anim::<EphPlatAnim>(app);
+        register_anim::<GuilloAnim>(app);
         // juice
         register_anim::<DashFadeAnim>(app);
         register_anim::<SmokeDown>(app);

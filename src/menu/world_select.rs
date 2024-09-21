@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 #[derive(Component)]
-struct WorldSprite;
+struct WorldSprites;
 
 #[derive(Component)]
 struct Iid {
@@ -74,7 +74,16 @@ fn on_enter(
             ..default()
         },
         MenuLayer::render_layers(),
-        WorldSprite,
+        WorldSprites,
+    ));
+    commands.spawn((
+        Name::new("world_text_sprite"),
+        SpriteBundle {
+            texture: ass.load("menu/controls.png"),
+            ..default()
+        },
+        MenuLayer::render_layers(),
+        WorldSprites,
     ));
     let mut last_ent;
     // let mut new_ent = None;
@@ -173,7 +182,7 @@ fn update_input(
 
 fn on_exit(
     mut commands: Commands,
-    ephemeral: Query<Entity, Or<(With<WorldSprite>, With<Iid>, With<Action>)>>,
+    ephemeral: Query<Entity, Or<(With<WorldSprites>, With<Iid>, With<Action>)>>,
 ) {
     for ent in &ephemeral {
         commands.entity(ent).despawn_recursive();

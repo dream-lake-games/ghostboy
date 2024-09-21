@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 #[derive(Component)]
-struct PauseSprite;
+struct PauseSprites;
 
 struct Selected;
 impl Component for Selected {
@@ -59,7 +59,16 @@ fn on_enter(mut commands: Commands, ass: Res<AssetServer>) {
             ..default()
         },
         MenuLayer::render_layers(),
-        PauseSprite,
+        PauseSprites,
+    ));
+    commands.spawn((
+        Name::new("world_text_sprite"),
+        SpriteBundle {
+            texture: ass.load("menu/controls.png"),
+            ..default()
+        },
+        MenuLayer::render_layers(),
+        PauseSprites,
     ));
     commands.spawn(SoundEffect::PauseIn);
     let mut _last_ent;
@@ -157,7 +166,7 @@ fn update_input(
 
 fn on_exit(
     mut commands: Commands,
-    ephemeral: Query<Entity, Or<(With<PauseSprite>, With<ButtonKind>, With<Action>)>>,
+    ephemeral: Query<Entity, Or<(With<PauseSprites>, With<ButtonKind>, With<Action>)>>,
 ) {
     for ent in &ephemeral {
         commands.entity(ent).despawn_recursive();

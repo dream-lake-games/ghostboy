@@ -3,7 +3,7 @@ use bevy::audio::{PlaybackMode, Volume};
 use crate::prelude::*;
 
 #[derive(Component)]
-struct RedeathSprite;
+struct RedeathSprites;
 
 #[derive(Component)]
 struct WentForward;
@@ -26,7 +26,16 @@ fn on_enter(
             ..default()
         },
         MenuLayer::render_layers(),
-        RedeathSprite,
+        RedeathSprites,
+    ));
+    commands.spawn((
+        Name::new("redeath_ctrls_sprite"),
+        SpriteBundle {
+            texture: ass.load("menu/controls.png"),
+            ..default()
+        },
+        MenuLayer::render_layers(),
+        RedeathSprites,
     ));
     fade.in_(cam_pos.get_single().unwrap_or(&Pos::new(0.0, 0.0)).clone());
     music.fade_to_song(MusicKind::Draft);
@@ -77,7 +86,7 @@ fn update(
 
 fn on_exit(
     mut commands: Commands,
-    old: Query<Entity, Or<(With<RedeathSprite>, With<WentForward>)>>,
+    old: Query<Entity, Or<(With<RedeathSprites>, With<WentForward>)>>,
 ) {
     for ent in &old {
         commands.entity(ent).despawn_recursive();
