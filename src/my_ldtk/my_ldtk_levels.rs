@@ -125,12 +125,16 @@ fn update_current_level_bounds(
     helpers.bounds = new_bounds;
 }
 
+#[derive(Resource)]
+struct MinLevelLoadTime(f32);
+
 fn start_load_level(
     mut commands: Commands,
     level_state: Res<State<LevelState>>,
     existing: Query<Entity, With<Handle<LdtkProject>>>,
     asset_server: Res<AssetServer>,
     mut level_selection: ResMut<LevelSelection>,
+    mut min_level_load: ResMut<MinLevelLoadTime>,
 ) {
     let LevelState::Loading(loading_state) = level_state.get() else {
         panic!("bad load_level1");
@@ -146,12 +150,23 @@ fn start_load_level(
         },
     ));
     *level_selection = LevelSelection::iid(loading_state.level_iid.to_string());
+    min_level_load.0 = 0.0;
 }
 
 fn watch_stop_load_level(
     active_tombstone: Query<Entity, With<TombstoneActive>>,
+    walls: Query<Entity, With<Wall>>,
     mut meta_state: ResMut<NextState<MetaState>>,
+    mut min_load_time: ResMut<MinLevelLoadTime>,
+    time: Res<Time>,
 ) {
+    if min_load_time.0 < 0.3 {
+        min_load_time.0 += time.delta_seconds();
+        return;
+    }
+    if walls.iter().count() < 20 {
+        return;
+    }
     if active_tombstone.iter().count() == 1 {
         meta_state.set(LevelState::Spawning.to_meta_state());
     }
@@ -171,6 +186,7 @@ pub(super) fn register_my_ldtk_levels(app: &mut App) {
         Update,
         watch_stop_load_level.run_if(in_state(LevelStateKind::Loading)),
     );
+    app.insert_resource(MinLevelLoadTime(0.0));
 
     app.observe(handle_start_switch_to_level);
 }

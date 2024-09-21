@@ -24,7 +24,7 @@ fn update_gboy_animation(
         if moving_hor {
             anim.set_state(GBoyAnim::Run);
             if animp.get_body_ix(AnimBody_GBoyAnim::run) == Some(1) {
-                commands.spawn((vec![SoundEffect::Normal1].pick(), SoundMult(0.1)));
+                commands.spawn((vec![SoundEffect::Normal2].pick(), SoundMult(0.06)));
             }
         } else {
             anim.set_state(GBoyAnim::Stand);

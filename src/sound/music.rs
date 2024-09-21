@@ -17,7 +17,7 @@ pub enum MusicKind {
 impl MusicKind {
     fn to_asset_path(&self) -> String {
         match self {
-            Self::NoSong => "music/ChildhoodFriends.ogg".into(), // Arbitrary
+            Self::NoSong => "music/Draft.ogg".into(), // Arbitrary
             Self::Draft => "music/Draft.ogg".into(),
         }
     }
@@ -65,7 +65,7 @@ fn setup_music(mut commands: Commands, asset_server: Res<AssetServer>, sound_roo
         .with_children(|parent| {
             parent.spawn((
                 AudioBundle {
-                    source: asset_server.load("music/ChildhoodFriends.ogg"),
+                    source: asset_server.load("music/Draft.ogg"),
                     settings: PlaybackSettings {
                         mode: bevy::audio::PlaybackMode::Loop,
                         volume: Volume::new(0.0),
