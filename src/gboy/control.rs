@@ -305,7 +305,7 @@ fn dash_juice(
 
 pub(super) fn register_control(app: &mut App) {
     app.insert_resource(GBoyControlConsts::default());
-    debug_resource!(app, GBoyControlConsts);
+    // debug_resource!(app, GBoyControlConsts);
 
     app.add_systems(
         BulletUpdate,

@@ -86,23 +86,23 @@ fn on_enter(
         WorldSprites,
     ));
     let mut last_ent;
-    // let mut new_ent = None;
-    // macro_rules! add_level {
-    //     ($pos:expr, $iid:expr) => {{
-    //         let last_ent = &mut last_ent;
-    //         let new_ent = &mut new_ent;
-    //         *new_ent = Some(
-    //             commands
-    //                 .spawn(ButtonBundle::new($pos, $iid))
-    //                 .insert(Prev(last_ent.clone().unwrap()))
-    //                 .id(),
-    //         );
-    //         commands
-    //             .entity(last_ent.clone().unwrap())
-    //             .insert(Next(new_ent.clone().unwrap()));
-    //         *last_ent = *new_ent;
-    //     }};
-    // }
+    let mut new_ent = None;
+    macro_rules! add_level {
+        ($pos:expr, $iid:expr) => {{
+            let last_ent = &mut last_ent;
+            let new_ent = &mut new_ent;
+            *new_ent = Some(
+                commands
+                    .spawn(ButtonBundle::new($pos, $iid))
+                    .insert(Prev(last_ent.clone().unwrap()))
+                    .id(),
+            );
+            commands
+                .entity(last_ent.clone().unwrap())
+                .insert(Next(new_ent.clone().unwrap()));
+            *last_ent = *new_ent;
+        }};
+    }
     last_ent = Some(
         commands
             .spawn(ButtonBundle::new(
@@ -112,7 +112,7 @@ fn on_enter(
             .insert(Selected)
             .id(),
     );
-    // add_level!(Pos::new(0.0, 0.0), "52d3b660-4ce0-11ef-8383-f788b4218df1");
+    add_level!(Pos::new(0.0, 0.0), "f3454410-73f0-11ef-8383-35f2180fb972");
     // add_level!(Pos::new(40.0, 0.0), "6707e010-4ce0-11ef-8458-1d8de6fabb3d");
     if fade.anim == FadeAnim::Black {
         fade.in_(cam_pos.single().clone());

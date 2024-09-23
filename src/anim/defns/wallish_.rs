@@ -46,15 +46,18 @@ defn_animation!(
         up: {
             path: "environment/guillo_up.png",
             size: (16, 36),
+            offset: (0.0, 2.0),
         },
         fall: {
             path: "environment/guillo_fall.png",
             size: (16, 36),
             length: 6,
+            offset: (0.0, 2.0),
         },
         down: {
             path: "environment/guillo_down.png",
             size: (16, 36),
+            offset: (0.0, 2.0),
         },
     ],
     states: [

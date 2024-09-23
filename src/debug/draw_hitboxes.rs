@@ -57,10 +57,10 @@ fn draw_hitboxes(
 }
 
 pub(super) fn register_draw_hitboxes(app: &mut App) {
-    app.add_systems(
-        PostUpdate,
-        draw_hitboxes
-            .after(PhysicsSet)
-            .run_if(input_toggle_active(false, KeyCode::KeyH)),
-    );
+    // app.add_systems(
+    //     PostUpdate,
+    //     draw_hitboxes
+    //         .after(PhysicsSet)
+    //         .run_if(input_toggle_active(false, KeyCode::KeyH)),
+    // );
 }

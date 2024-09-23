@@ -68,14 +68,27 @@ fn crush_spawns(
 }
 
 fn end_level(
-    mut guillo: Query<(&TriggerTxCtrl, &mut AnimMan<GuilloAnim>)>,
+    mut guillo: Query<(&TriggerTxCtrl, &mut AnimMan<GuilloAnim>, &Transform)>,
     mut meta_state: ResMut<NextState<MetaState>>,
+    mut fade: ResMut<Fade>,
+    // TODO: This ended up in a broken state
+    _boys: Query<Entity, With<GBoy>>,
+    mut _commands: Commands,
 ) {
-    let Ok((trig, mut anim)) = guillo.get_single_mut() else {
+    let Ok((trig, mut anim, tran)) = guillo.get_single_mut() else {
         return;
     };
-    if trig.coll_keys.len() > 0 {
+    if trig.coll_keys.len() > 0 && anim.get_state() == GuilloAnim::Up {
         anim.set_state(GuilloAnim::Fall);
+        // meta_state.set(MenuState::WorldSelect.to_meta_state());
+        // for boy in &boys {
+        //     commands.entity(boy).remove::<Dyno>();
+        // }
+    }
+    if anim.get_state() == GuilloAnim::Down && fade.anim == FadeAnim::Clear {
+        fade.out(Pos::new(tran.translation.x, tran.translation.y));
+    }
+    if fade.anim == FadeAnim::Black {
         meta_state.set(MenuState::WorldSelect.to_meta_state());
     }
 }

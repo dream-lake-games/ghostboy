@@ -12,13 +12,13 @@ struct MusicMarkerChild;
 pub enum MusicKind {
     #[default]
     NoSong,
-    Draft,
+    DeathMyOldFriend,
 }
 impl MusicKind {
     fn to_asset_path(&self) -> String {
         match self {
             Self::NoSong => "music/Draft.ogg".into(), // Arbitrary
-            Self::Draft => "music/Draft.ogg".into(),
+            Self::DeathMyOldFriend => "music/DeathMyOldFriend.ogg".into(),
         }
     }
 
@@ -26,7 +26,7 @@ impl MusicKind {
     fn to_volume_adjustment(&self) -> f32 {
         match self {
             Self::NoSong => 0.0, // hack (this one is clean tho)
-            Self::Draft => 0.5,
+            Self::DeathMyOldFriend => 0.5,
         }
     }
 }

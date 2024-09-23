@@ -38,7 +38,7 @@ fn on_enter(
         RedeathSprites,
     ));
     fade.in_(cam_pos.get_single().unwrap_or(&Pos::new(0.0, 0.0)).clone());
-    music.fade_to_song(MusicKind::Draft);
+    music.fade_to_song(MusicKind::DeathMyOldFriend);
     if existing_rain.is_empty() {
         commands.spawn((
             AudioBundle {
