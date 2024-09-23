@@ -113,7 +113,7 @@ fn on_enter(
             .id(),
     );
     add_level!(Pos::new(0.0, 0.0), "f3454410-73f0-11ef-8383-35f2180fb972");
-    // add_level!(Pos::new(40.0, 0.0), "6707e010-4ce0-11ef-8458-1d8de6fabb3d");
+    add_level!(Pos::new(40.0, 0.0), "bf908b30-73f0-11ef-8383-cb437c1cb6fb");
     if fade.anim == FadeAnim::Black {
         fade.in_(cam_pos.single().clone());
     }
