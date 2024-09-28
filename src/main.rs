@@ -51,7 +51,7 @@ fn get_window_plugin() -> WindowPlugin {
             primary_window: Some(Window {
                 resizable: true,
                 title: "GB TEMPLATE".to_string(),
-                resolution: WindowResolution::new(SCREEN_WIDTH_f32 * 3.0, SCREEN_HEIGHT_f32 * 3.0),
+                resolution: WindowResolution::new(SCREEN_WIDTH_f32 * 4.0, SCREEN_HEIGHT_f32 * 4.0),
                 ..default()
             }),
             ..default()

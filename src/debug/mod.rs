@@ -18,19 +18,19 @@ fn reload_level(
     mut commands: Commands,
     mut meta_state: ResMut<NextState<MetaState>>,
 ) {
-    if keyboard.just_pressed(KeyCode::Backspace) {
-        for ent in &proj {
-            commands.entity(ent).despawn_recursive();
-        }
-        commands.entity(level_root.eid()).despawn_descendants();
-        meta_state.set(
-            LevelState::Loading(LevelLoadingState {
-                world_path: "ldtk/world.ldtk".to_string(),
-                level_iid: LevelIid::new("4f654670-73f0-11ef-b6ce-11a7b97a42a0"),
-            })
-            .to_meta_state(),
-        );
-    }
+    // if keyboard.just_pressed(KeyCode::Backspace) {
+    //     for ent in &proj {
+    //         commands.entity(ent).despawn_recursive();
+    //     }
+    //     commands.entity(level_root.eid()).despawn_descendants();
+    //     meta_state.set(
+    //         LevelState::Loading(LevelLoadingState {
+    //             world_path: "ldtk/world.ldtk".to_string(),
+    //             level_iid: LevelIid::new("4f654670-73f0-11ef-b6ce-11a7b97a42a0"),
+    //         })
+    //         .to_meta_state(),
+    //     );
+    // }
 }
 
 /// The set that contains all physics related systems

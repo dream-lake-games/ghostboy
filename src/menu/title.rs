@@ -28,15 +28,15 @@ fn on_enter(
         MenuLayer::render_layers(),
         RedeathSprites,
     ));
-    commands.spawn((
-        Name::new("redeath_ctrls_sprite"),
-        SpriteBundle {
-            texture: ass.load("menu/controls.png"),
-            ..default()
-        },
-        MenuLayer::render_layers(),
-        RedeathSprites,
-    ));
+    // commands.spawn((
+    //     Name::new("redeath_ctrls_sprite"),
+    //     SpriteBundle {
+    //         texture: ass.load("menu/controls.png"),
+    //         ..default()
+    //     },
+    //     MenuLayer::render_layers(),
+    //     RedeathSprites,
+    // ));
     fade.in_(cam_pos.get_single().unwrap_or(&Pos::new(0.0, 0.0)).clone());
     music.fade_to_song(MusicKind::DeathMyOldFriend);
     if existing_rain.is_empty() {
